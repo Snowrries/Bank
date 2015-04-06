@@ -21,5 +21,6 @@ int socks()){
 		printf("Bind failed. errorno: %d", errorno);
 		return -2;
 	}
+	if(())
 	return sd;
 }
