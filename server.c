@@ -3,6 +3,14 @@
 
 
 
+void ChildSigHandler(int signal){
+
+	while( (wait(0)) != -1){
+
+	}
+}
+
+
 static void set_iaddr(struct sockaddr_in * sockaddr, long x, unsigned int port){
 	memeset(sockaddr, 0, sizeof(*sockaddr));
 	sockaddr->sin_family = AF_INET;
@@ -14,6 +22,7 @@ static void set_iaddr(struct sockaddr_in * sockaddr, long x, unsigned int port){
 
 int socks(){
 	int sd;
+	pid_t pid;
 	struct sockaddr_in add;
 	
 	if((sd = socket(AF_INET, SOCK_STREAM, 0)) == -1){
@@ -28,7 +37,10 @@ int socks(){
 		printf("Listen failed. Speak up or I have to put in my hearing aids. Errno: %d", errno);
 
 	}
-
+	pid = fork();
+	if(pid == 0){
+		signal(/*SIGSOMETHING*/,ChildSigHandler);
+	}
 
 
 	return sd;

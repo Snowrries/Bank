@@ -31,7 +31,7 @@
 	int socks();
 	
 	
-	
+	void ChildSigHandler(int sig);
 
 
 
