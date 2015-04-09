@@ -39,7 +39,7 @@ int socks(){
 	addrinfo.ai_addr = NULL;
 	addrinfo.ai_canonname = NULL;
 	addrinfo.ai_next = NULL;
-	if ( getaddrinfo( 0, port, &addrinfo, &result ) != 0 ){
+	if ( getaddrinfo( 0, CLIENT_PORT, &addrinfo, &result ) != 0 ){
 		fprintf( stderr, "\x1b[1;31mgetaddrinfo( %s ) failed errno is %s.  File %s line %d.\x1b[0m\n", port, strerror( errno ), __FILE__, __LINE__ );
 		return -1;
 	}
