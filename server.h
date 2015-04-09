@@ -33,6 +33,6 @@
 	
 	void ChildSigHandler(int sig);
 
-
+	void* client_session_thread(void * arg);
 
 #endif //Server.h

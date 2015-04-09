@@ -19,6 +19,28 @@ static void set_iaddr(struct sockaddr_in * sockaddr, long x, unsigned int port){
 
 }
 
+void *client_session_thread(void* arg){
+
+	int sd;
+	char request[2048];
+	char response[2048];
+	char temp;
+	int i;
+	int limit,size;
+	float ignore;
+	long senderIPaddr;
+
+	sd = *(int *) arg;
+	free(arg);
+
+	while(read(sd,request,sizeof(request)) >0){
+		printf(("server receives input: %s \n"), request);
+		size = strlen(request);
+
+	}
+
+}
+
 
 int socks(){
 	int sd;
@@ -40,7 +62,7 @@ int socks(){
 	addrinfo.ai_canonname = NULL;
 	addrinfo.ai_next = NULL;
 	if ( getaddrinfo( 0, CLIENT_PORT, &addrinfo, &result ) != 0 ){
-		fprintf( stderr, "\x1b[1;31mgetaddrinfo( %s ) failed errno is %s.  File %s line %d.\x1b[0m\n", port, strerror( errno ), __FILE__, __LINE__ );
+		fprintf( stderr, "\x1b[1;31mgetaddrinfo( %s ) failed errno is %s.  File %s line %d.\x1b[0m\n", CLIENT_PORT, strerror( errno ), __FILE__, __LINE__ );
 		return -1;
 	}
 	if((sd = socket(AF_INET, SOCK_STREAM, 0)) == -1){
@@ -64,7 +86,7 @@ int socks(){
 	
 	pid = fork();
 	if(pid == 0){
-		signal(/*SIGSOMETHING*/,ChildSigHandler);
+		signal(SIGCHLD,ChildSigHandler);
 	}
 
 
