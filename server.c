@@ -30,8 +30,6 @@ int socks(){
 	struct addrinfo *result;
 	char message[256];
 	int on = 1;
-	const char *port;
-	port = "What's our port?";
 
 	addrinfo.ai_flags = AI_PASSIVE;		// for bind()
 	addrinfo.ai_family = AF_INET;		// IPv4 only
