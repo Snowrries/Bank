@@ -1,7 +1,9 @@
 
 #include "server.h"
 
-
+void organized_cleaning(int signal){
+	shmctl(shmid, IPC_RMID, NULL);
+}
 
 void ChildSigHandler(int signal){
 	pid_t pid;
@@ -43,7 +45,6 @@ int socks(){
 	int sd;
 	int sporkd;
 	int pid;
-	struct sigaction act;
 	struct sockaddr_in addr;
 	struct addrinfo	addrinfo;
 	struct addrinfo *result;
@@ -56,6 +57,7 @@ int socks(){
 
 	action.sa_handler = &ChildSigHandler;
 	action.sa_flags = 0;
+	sigemptyset (&action.sa_mask);
 	sigaddset(action.sa_mask,SIGCHLD);
 
 	addrinfo.ai_flags = AI_PASSIVE;		// for bind()
@@ -144,16 +146,23 @@ int socks(){
 int main(){
 
 	int sd;
-
-
+	struct sigaction memclean;
+	memclean.sa_handler = organized_cleaning;
+	sigemptyset (&memclean.sa_mask);
+	sigaddset (&memclean.sa_mask, SIGINT);
+	memclean.sa_flags = 0;
+	sigaction(SIGINT, &memclean, NULL);
+	sigprocmask(SIG_BLOCK, &memclean.sa_mask, NULL);
+	//Note, there are forks in the server, but no threads... The forked processes are 2threaded. 
+	
 
 	/* Shared Memory Section
 	key_t key;
 	int shmid;
 	char* p;
 	int size;
-
-	if(errno = 0, (key = ftok("path/of/sort",42)) == -1){
+	size = 4096; // 4kB
+	if(errno = 0, (key = ftok("testplan.txt",42)) == -1){
 
 	}
 	else if(errno = 0, (shmid = shmget(key,size,IPC_CREAT | IPC_EXCL)) != -1){
@@ -181,7 +190,9 @@ int main(){
 	else
 	{
 	printf("shmget failed");
-	*/
+	}*/
+	
+	sigprocmask(SIG_UNBLOCK, &memclean.sa_mask, NULL);
 
 	//Server-Client Service
 	socks();
