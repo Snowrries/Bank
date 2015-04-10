@@ -1,14 +1,14 @@
 
 #include "server.h"
 
-void organized_cleaning(int signal){
+void organized_cleaning(int signal, siginfo_t *ignore, void *ignore2){
 	shmctl(shmid, IPC_RMID, NULL);
 	/*Note: shmid is a global var. Further, sigint is blocked while shared memory is being created, 
 	so shmid is guaranteed to be a pointer to a valid block of shared memory*/
 	raise(signal);
 }
 
-void ChildSigHandler(int signal){
+void ChildSigHandler(int signal, siginfo_t *ignore, void *ignore2){
 	pid_t pid;
 	int status;
 	while( (pid = waitpid(-1,&status,WNOHANG)) == -1){
@@ -17,22 +17,38 @@ void ChildSigHandler(int signal){
 	printf("Child process killed; PID: %d\n", (int)pid );
 }
 
-void client_session(int sd){
+void periodic_printing(int signal, siginfo_t *ignore, void *ignore2){
+	
+}
 
-	char request[128];
-	char response[2048];
+void client_session(int sd){
+	char *command;
+	char *arguments;
+	char request[2048];
+	char storage[2048];
 	char temp;
 	int i;
-	int limit,size;
+	int curr,size;
 	float ignore;
 	long senderIPaddr;
-	
+
 	while(1){
-		while(read(sd,request,sizeof(request)) > 0){ //Not sure this is right
-			printf(("server receives input: %s \n"), request);
-			size += strlen(request);
-		}
+		limit = 0;
 		size = 0;
+		while((size = recv(sd,request,sizeof(request))) > 0){ 
+			curr += size;
+			if(curr > 2048){
+				storage[0] = "Overflow input. Please enter another command.";
+				write( sd, storage, strlen(storage) + 1 );
+				continue;
+			}
+			memcpy(storage[curr], request, size);
+			
+		}
+		//Here, we have a line of input from client. Let's decipher it.
+		sscanf(storage, "%sm %sm", &command, &arguments);
+		/*Check validity for command, switch, then check argument validity. */
+		
 	}
 
 }
@@ -141,7 +157,7 @@ void sharingcaring(){
 		printf("shmget failed; errno :  %s\n", strerror( errno )");
 		exit( 1 );
 	}
-	else if((p = (char*) shmat(shmid,0,0)) == (void*) -1) {
+	else if((errno = 0, (p = (char*) shmat(shmid,NULL,0)) == (void*) -1) {
 		printf( "shmat() failed; errno :  %s\n", strerror( errno ) );
 		exit( 1 );
 	}
@@ -158,7 +174,10 @@ int main(){
 	sigaction(SIGINT, &memclean, NULL);
 	sigprocmask(SIG_BLOCK, &memclean.sa_mask, NULL);
 	//Note, there are forks in the server, but no threads... The forked processes are 2threaded. 
+	
+	//Shared Memory Setup
 	sharingcaring();
+	
 	sigprocmask(SIG_UNBLOCK, &memclean.sa_mask, NULL);
 
 	//Server-Client Service
