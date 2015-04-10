@@ -16,25 +16,19 @@
 #include <errno.h>
 
 
-#define CLIENT_PORT 514965
+#define CLIENT_PORT 54261
 
-	//From BKR's server.c
-	static void set_iaddr(struct sockaddr_in * sockaddr, long x, unsigned int port);
-
-	/*
-	Has a particular network socket descriptor to recv on and send to
-	this is what we'll fork
-	*/
-	int service(int sd);
-	
-	/*
-	socket, bind, listen, accept
-	*/
-	int socks();
-	
+	void organized_cleaning(int signal);
 	
 	void ChildSigHandler(int sig);
+	
+	void client_session(int sd);
+	
+	int socks();
 
-	void* client_session_thread(void * arg);
-
+	void sharingcaring();
+	/*??
+	From BKR's server.c
+	static void set_iaddr(struct sockaddr_in * sockaddr, long x, unsigned int port);
+	*/
 #endif //Server.h
