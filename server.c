@@ -4,20 +4,17 @@
 
 
 void ChildSigHandler(int signal){
+	pid_t pid;
+	int status;
+	while( (waitpid(-1,&status,WNOHANG)) == -1){
 
-	//while( (wait(0)) != -1){
-	//}
+		//Do something with child return status if needed.
+
+	}
 	
 }
 
-/*Tony, what does this do?
-static void set_iaddr(struct sockaddr_in * sockaddr, long x, unsigned int port){
-	memeset(sockaddr, 0, sizeof(*sockaddr));
-	sockaddr->sin_family = AF_INET;
-	sockaddr->sin_port = htons(port);
-	sockaddr->sin_addr.s_addr = htonl(x);
 
-}*/
 
 void client_session(int sd){
 
@@ -46,13 +43,20 @@ int socks(){
 	int sd;
 	int sporkd;
 	int pid;
-	struct sockaddr_in add;
+	struct sigaction act;
+	struct sockaddr_in addr;
 	struct addrinfo	addrinfo;
 	struct addrinfo *result;
 	socklen_t addrlen;
 	struct sockaddr_storage them;
 	char message[256];
 	int on = 1;
+
+	struct sigaction action;
+
+	action.sa_handler = &ChildSigHandler;
+	action.sa_flags = 0;
+	sigaddset(action.sa_mask,SIGCHLD);
 
 	addrinfo.ai_flags = AI_PASSIVE;		// for bind()
 	addrinfo.ai_family = AF_INET;		// IPv4 only
@@ -104,10 +108,14 @@ int socks(){
 		close( sd );
 		return 0;
 	}*/
-		
+		if(sigaction(SIGCHLD,&act,NULL)<0){
+			perroer("Sigaction failed");
+			return 1;
+		}
 		while(1){
 			addrlen = sizeof(struct sockaddr_storage);
 			sporkd = accept(sd,(struct sockaddr *)&them, &addrlen);
+
 			pid = fork();
 			if(pid == -1)
 			{
@@ -117,9 +125,9 @@ int socks(){
 			else if(pid == 0)//Is Child process
 			{
 				close(sd);
+
 				client_session(sporkd);
 				exit(0);//This'll send a sigchld signal.
-	//			signal(SIGCHLD,ChildSigHandler); ?? 
 			}
 			else//Is parent process
 			{
