@@ -10,32 +10,32 @@ void ChildSigHandler(int signal){
 	
 }
 
-
+/*Tony, what does this do?
 static void set_iaddr(struct sockaddr_in * sockaddr, long x, unsigned int port){
 	memeset(sockaddr, 0, sizeof(*sockaddr));
 	sockaddr->sin_family = AF_INET;
 	sockaddr->sin_port = htons(port);
 	sockaddr->sin_addr.s_addr = htonl(x);
 
-}
+}*/
 
-void *client_session_thread(void* arg){
+void client_session(int sd){
 
-	int sd;
-	char request[2048];
+	char request[128];
 	char response[2048];
 	char temp;
 	int i;
 	int limit,size;
 	float ignore;
 	long senderIPaddr;
-
-	sd = *(int *) arg;
-	free(arg);
-
-	while(read(sd,request,sizeof(request)) >0){
-		printf(("server receives input: %s \n"), request);
-		size = strlen(request);
+	
+	while(1){
+		while(read(sd,request,sizeof(request)) > 0){ //Not sure this is right
+			printf(("server receives input: %s \n"), request);
+			size += strlen(request);
+		}
+		size = 0;
+		
 
 	}
 
@@ -95,7 +95,7 @@ int socks(){
 	
 	else
 	{
-		ic = sizeof(senderAddr);
+	/*	ic = sizeof(senderAddr);
 		while ( (sporkd = accept( sd, (struct sockaddr *)&senderAddr, &ic )) != -1 )
 		{
 			fdptr = (int *)malloc( sizeof(int) );
@@ -103,25 +103,29 @@ int socks(){
 		}
 		close( sd );
 		return 0;
-	}
-	
-	while(1){
-		addrlen = sizeof(struct sockaddr_storage);
-		sporkd = accept(sd,(struct sockaddr *)&them, &addrlen);
-		pid = fork();
-		if(pid == -1)
-		{
-			perror("Forking error.");
-			close(sporkd); // Make sure this is ok
-		}
-		else if(pid == 0)//Is Child process
-		{
-//			signal(SIGCHLD,ChildSigHandler); ?? 
-		}
-		else//Is parent process
-		{
-			printf("Created child process %d\n", pid);
-			close(sporkd);
+	}*/
+		
+		while(1){
+			addrlen = sizeof(struct sockaddr_storage);
+			sporkd = accept(sd,(struct sockaddr *)&them, &addrlen);
+			pid = fork();
+			if(pid == -1)
+			{
+				perror("Forking error.");
+				close(sporkd); // Make sure this is ok
+			}
+			else if(pid == 0)//Is Child process
+			{
+				close(sd);
+				client_session(sporkd);
+				exit(0);//This'll send a sigchld signal.
+	//			signal(SIGCHLD,ChildSigHandler); ?? 
+			}
+			else//Is parent process
+			{
+				printf("Created child process %d\n", pid);
+				close(sporkd);
+			}
 		}
 	}
 	return 0;
