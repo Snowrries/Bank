@@ -80,13 +80,13 @@ int socks(){
 	}*/
 	else if ( setsockopt( sd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on) ) == -1 )
 	{
-		printf( "setsockopt() failed in %s()\n", func );
+		//printf( "setsockopt() failed in %s()\n", func );
 		return 0;
 	}
 	else if ( set_iaddr( &addr, INADDR_ANY, CLIENT_PORT ), errno = 0,
 			bind( sd, (const struct sockaddr *)&addr, sizeof(addr) ) == -1 )
 	{
-		printf( "bind() failed in %s() line %d errno %d\n", func, __LINE__, errno );
+		//printf( "bind() failed in %s() line %d errno %d\n", func, __LINE__, errno );
 		close( sd );
 		return 0;
 	}
@@ -109,7 +109,7 @@ int socks(){
 		return 0;
 	}*/
 		if(sigaction(SIGCHLD,&act,NULL)<0){
-			perroer("Sigaction failed");
+			perror("Sigaction failed");
 			return 1;
 		}
 		while(1){
@@ -138,4 +138,52 @@ int socks(){
 	}
 	return 0;
 	//return sd;
+}
+
+
+int main(){
+
+	int sd;
+
+
+
+	/* Shared Memory Section
+	key_t key;
+	int shmid;
+	char* p;
+	int size;
+
+	if(errno = 0, (key = ftok("path/of/sort",42)) == -1){
+
+	}
+	else if(errno = 0, (shmid = shmget(key,size,IPC_CREAT | IPC_EXCL)) != -1){
+		p = (char*) shmat(shmid,0,0);
+		if( p == (void*) -1){
+			printf( "shmat() failed  errno :  %s\n", strerror( errno ) );
+			exit( 1 );
+		}
+		else{
+			//shared mem sucess.  Begin Server/Client Comunnications.
+		}
+	}
+	else if(errno = 0, (shmid = shmget(key,0 , 0666)) != -1){
+		errno = 0;
+		p = (char *)shmat(shmid, 0 ,0 );
+		if(p == (void * )-1){
+			printf("failed");
+
+		}
+		else
+		{
+			//shared mem
+		}
+	}
+	else
+	{
+	printf("shmget failed");
+	*/
+
+	//Server-Client Service
+	socks();
+
 }

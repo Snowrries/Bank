@@ -2,6 +2,7 @@
 #define server_h
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/shm.h>
 #include <semaphore.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,6 +11,7 @@
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <netinet/in.h>
+#include <netdb.h>
 #include <sys/socket.h>
 #include <errno.h>
 
