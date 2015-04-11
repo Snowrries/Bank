@@ -1,6 +1,11 @@
 
 #include "server.h"
 
+
+int shmid;
+
+
+
 void organized_cleaning(int signal, siginfo_t *ignore, void *ignore2){
 	shmctl(shmid, IPC_RMID, NULL);
 	/*Note: shmid is a global var. Further, sigint is blocked while shared memory is being created, 
@@ -139,7 +144,6 @@ int socks(){
 	//return sd;
 }
 
-int shmid;
 void sharingcaring(){
 	/* Shared Memory Section*/
 
@@ -148,7 +152,7 @@ void sharingcaring(){
 	key_t key;
 	char* p;
 	int size;
-	size = 4096; // 4kB
+	size = 20 * sizeof(account_t); // 20 accounts
 	if(errno = 0, (key = ftok("testplan.txt",42)) == -1){
 		printf("ftok failed; errno :  %s\n", strerror( errno )");
 		exit( 1 );
@@ -157,10 +161,11 @@ void sharingcaring(){
 		printf("shmget failed; errno :  %s\n", strerror( errno )");
 		exit( 1 );
 	}
-	else if((errno = 0, (p = (char*) shmat(shmid,NULL,0)) == (void*) -1) {
+	else if((errno = 0, (p = (account*) shmat(shmid,NULL,0)) == (void*) -1) {
 		printf( "shmat() failed; errno :  %s\n", strerror( errno ) );
 		exit( 1 );
 	}
+	
 	//shared mem sucess.  Begin Server/Client Comunnications.
 }
 int main(){
@@ -177,6 +182,12 @@ int main(){
 	
 	//Shared Memory Setup
 	sharingcaring();
+		//Shared Memory Init
+
+	
+	account data[20] = p;//Not sure if this is ok?
+	
+	
 	
 	sigprocmask(SIG_UNBLOCK, &memclean.sa_mask, NULL);
 
