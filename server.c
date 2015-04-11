@@ -13,7 +13,7 @@ void organized_cleaning(int signal, siginfo_t *ignore, void *ignore2){
 	raise(signal);
 }
 
-void ChildSigHandler(int signal, siginfo_t *ignore, void *ignore2){
+void ChildSigHandler(int signal){
 	pid_t pid;
 	int status;
 	while( (pid = waitpid(-1,&status,WNOHANG)) == -1){
@@ -30,7 +30,7 @@ void client_session(int sd){
 	char *command;
 	char *arguments;
 	char request[2048];
-	char storage[2048];
+	char* storage;
 	char temp;
 	int i;
 	int curr,size;
@@ -38,16 +38,16 @@ void client_session(int sd){
 	long senderIPaddr;
 
 	while(1){
-		limit = 0;
+		curr = 0;
 		size = 0;
-		while((size = recv(sd,request,sizeof(request))) > 0){ 
+		while((size = recv(sd,request,sizeof(request),0)) > 0){
 			curr += size;
 			if(curr > 2048){
-				storage[0] = "Overflow input. Please enter another command.";
+				storage = "Overflow input. Please enter another command.";
 				write( sd, storage, strlen(storage) + 1 );
 				continue;
 			}
-			memcpy(storage[curr], request, size);
+			strncpy(storage, request, size);
 			
 		}
 		//Here, we have a line of input from client. Let's decipher it.
@@ -59,7 +59,7 @@ void client_session(int sd){
 }
 
 
-int socks(){
+int socks(const char* port){
 	int sd;
 	int sporkd;
 	int pid;
@@ -73,10 +73,10 @@ int socks(){
 
 	struct sigaction action;
 
-	action.sa_handler = &ChildSigHandler;
+	action.sa_handler = ChildSigHandler;
 	action.sa_flags = 0;
 	sigemptyset (&action.sa_mask);
-	sigaddset(action.sa_mask,SIGCHLD);
+	sigaddset(&action.sa_mask,SIGCHLD);
 
 	addrinfo.ai_flags = AI_PASSIVE;		// for bind()
 	addrinfo.ai_family = AF_INET;		// IPv4 only
@@ -86,7 +86,7 @@ int socks(){
 	addrinfo.ai_addr = NULL;
 	addrinfo.ai_canonname = NULL;
 	addrinfo.ai_next = NULL;
-	if ( getaddrinfo( 0, CLIENT_PORT, &addrinfo, &result ) != 0 ){
+	if ( getaddrinfo( 0, port, &addrinfo, &result ) != 0 ){
 		fprintf( stderr, "\x1b[1;31mgetaddrinfo( %s ) failed errno is %s.  File %s line %d.\x1b[0m\n", CLIENT_PORT, strerror( errno ), __FILE__, __LINE__ );
 		return -1;
 	}
@@ -96,8 +96,7 @@ int socks(){
 		//printf( "setsockopt() failed in %s()\n", func );
 		return 0;
 	}
-	else if ( set_iaddr( &addr, INADDR_ANY, CLIENT_PORT ), errno = 0,
-			bind( sd, (const struct sockaddr *)&addr, sizeof(addr) ) == -1 )
+	else if (errno = 0,bind( sd, (const struct sockaddr *)&addr, sizeof(addr) ) == -1 )
 	{
 		//printf( "bind() failed in %s() line %d errno %d\n", func, __LINE__, errno );
 		close( sd );
@@ -105,14 +104,15 @@ int socks(){
 	}
 	else if ( listen( sd, 100 ) == -1 )
 	{
-		printf( "Listen failed. Speak up or I have to put in my hearing aids.\nlisten() failed in %s() line %d errno %d\n", func, __LINE__, errno );
+		printf("listen failed");
+	//	printf( "Listen failed. Speak up or I have to put in my hearing aids.\nlisten() failed in %s() line %d errno %d\n", func, __LINE__, errno );
 		close( sd );
 		return 0;
 	}
 	
 	else
 	{
-		if(sigaction(SIGCHLD,&act,NULL)<0){
+		if(sigaction(SIGCHLD,&action,NULL)<0){
 			perror("Sigaction failed");
 			return 1;
 		}
@@ -143,9 +143,9 @@ int socks(){
 	return 0;
 	//return sd;
 }
-
+/*
 void sharingcaring(){
-	/* Shared Memory Section*/
+	/* Shared Memory Section
 
 //	int shmid; //Is declared globally
 
@@ -168,6 +168,7 @@ void sharingcaring(){
 	
 	//shared mem sucess.  Begin Server/Client Comunnications.
 }
+*/
 int main(){
 
 	int sd;
@@ -181,17 +182,19 @@ int main(){
 	//Note, there are forks in the server, but no threads... The forked processes are 2threaded. 
 	
 	//Shared Memory Setup
-	sharingcaring();
+	//sharingcaring();
 		//Shared Memory Init
 
 	
-	account data[20] = p;//Not sure if this is ok?
+	//account data[20] = p;//Not sure if this is ok?
 	
 	
 	
-	sigprocmask(SIG_UNBLOCK, &memclean.sa_mask, NULL);
+	//sigprocmask(SIG_UNBLOCK, &memclean.sa_mask, NULL);
 
 	//Server-Client Service
-	socks();
+	socks("54261");
+
+	return 0;
 
 }

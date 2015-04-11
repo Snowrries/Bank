@@ -23,9 +23,9 @@
 		float balance;
 		int session;
 	} account_t;
-	void organized_cleaning(int signal);
+	void organized_cleaning(int signal, siginfo_t *ignore, void *ignore2);
 	
-	void ChildSigHandler(int sig);
+	void ChildSigHandler(int signal2);
 	
 	void client_session(int sd);
 	
