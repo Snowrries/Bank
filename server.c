@@ -54,23 +54,24 @@ void client_session(int sd){
 		sscanf(storage, "%sm %sm", &command, &arguments);
 		/*Check validity for command, switch, then check argument validity. */
 		switch(command){
-			case "create":
-			break;
-			case "serve":
-			break;
-			case "deposit":
-			break;
-			case "withdraw":
-			break;
-			case "query":
-			break;
-			case "end":
-			break;
-			case "quit":
-			break;
-			default:
-			printf("Please enter a valid command, in all lowercase. ");
-		}
+					case "create":
+					break;
+					case "serve":
+					break;
+					case "deposit":
+					break;
+					case "withdraw":
+					break;
+					case "query":
+					break;
+					case "end":
+					break;
+					case "quit":
+					break;
+					default:
+					printf("Please enter a valid command, in all lowercase. ");
+				}
+
 	}
 
 }
@@ -181,7 +182,7 @@ void sharingcaring(){
 //	int shmid; //Is declared globally
 
 	key_t key;
-	char* p;
+	account_t* p;
 	int size;
 	size = 20 * sizeof(account_t); // 20 accounts
 	if(errno = 0, (key = ftok("testplan.txt",42)) == -1){
@@ -192,7 +193,7 @@ void sharingcaring(){
 		printf("shmget failed; errno :  %s\n", strerror( errno ));
 		exit( 1 );
 	}
-	else if((errno = 0, (p = (account_t*) shmat(shmid,NULL,0)) == (void*) -1) {
+	else if (errno = 0, (p = shmat(shmid,NULL,0)) == (void*) -1) {
 		printf( "shmat() failed; errno :  %s\n", strerror( errno ) );
 		exit( 1 );
 	}
