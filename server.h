@@ -14,6 +14,7 @@
 #include <netdb.h>
 #include <sys/socket.h>
 #include <errno.h>
+#include <signal.h>
 
 
 #define CLIENT_PORT 54261
