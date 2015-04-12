@@ -235,7 +235,7 @@ void sharingcaring(){
 //	int shmid; //Is declared globally
 
 	key_t key;
-	char* p;
+	account_t* p;
 	int size;
 	size = 20 * sizeof(account_t); // 20 accounts
 	if(errno = 0, (key = ftok("testplan.txt",42)) == -1){
