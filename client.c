@@ -77,7 +77,7 @@ main( int argc, char ** argv )
 		fprintf( stderr, "\x1b[1;31mNo host name specified.  File %s line %d.\x1b[0m\n", __FILE__, __LINE__ );
 		exit( 1 );
 	}
-	else if ( (sd = connect_to_server( argv[1], "514965" )) == -1 )
+	else if ( (sd = connect_to_server( argv[1], "54261" )) == -1 )
 	{
 		write( 1, message, sprintf( message,  "\x1b[1;31mCould not connect to server %s errno %s\x1b[0m\n", argv[1], strerror( errno ) ) );
 		return 1;

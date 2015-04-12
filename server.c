@@ -61,6 +61,7 @@ void client_session(int sd){
 
 int socks(const char* port){
 	int sd;
+	int n;
 	int sporkd;
 	int pid;
 	struct sockaddr_in addr;
@@ -113,16 +114,19 @@ int socks(const char* port){
 		close( sd );
 		return 0;
 	}
-	
+
 	else
 	{
+		printf("%s\n","Server running...waiting for connections.");
+
+
 		if(sigaction(SIGCHLD,&action,NULL)<0){
 			perror("Sigaction failed");
 			return 1;
 		}
-		while(1){
+		while((sporkd = accept(sd,(struct sockaddr *)&them, &addrlen)) != -1){
 			addrlen = sizeof(struct sockaddr_storage);
-			sporkd = accept(sd,(struct sockaddr *)&them, &addrlen);
+
 
 			pid = fork();
 			if(pid < 0)
@@ -134,7 +138,7 @@ int socks(const char* port){
 			{
 				close(sd);
 
-				client_session(sporkd);
+				//client_session(sporkd);
 				exit(0);//This'll send a sigchld signal.
 			}
 			else//Is parent process
@@ -143,7 +147,13 @@ int socks(const char* port){
 				close(sporkd);
 			}
 		}
+
+
+
+
 	}
+
+
 	return 0;
 	//return sd;
 }
@@ -200,5 +210,5 @@ int main(){
 	socks("54261");
 
 
-
+	return 0;
 }
