@@ -192,7 +192,7 @@ void sharingcaring(){
 		printf("shmget failed; errno :  %s\n", strerror( errno ));
 		exit( 1 );
 	}
-	else if((errno = 0, (p = (account*) shmat(shmid,NULL,0)) == (void*) -1) {
+	else if((errno = 0, (p = (account_t*) shmat(shmid,NULL,0)) == (void*) -1) {
 		printf( "shmat() failed; errno :  %s\n", strerror( errno ) );
 		exit( 1 );
 	}
