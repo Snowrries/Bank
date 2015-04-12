@@ -3,7 +3,10 @@
 
 
 int shmid;
-
+int readers;
+sem_t read;
+sem_t write;
+sem_t welcome;
 
 
 void organized_cleaning(int signal){
@@ -23,7 +26,7 @@ void ChildSigHandler(int signal){
 }
 
 void periodic_printing(int signal, siginfo_t *ignore, void *ignore2){
-	
+	//Print account info every 20 seconds. Raise a signal in Server main function.
 }
 typedef enum {
 	create,
@@ -93,6 +96,14 @@ void client_session(int sd){
 		
 		switch(inpt){
 			case create:
+				sem_wait(read);
+				sem_wait(welcome);
+				sem_wait(write);
+				
+				//Uh...
+				sem_post(welcome);
+				sem_post(read);
+				sem_post(write);
 			break;
 			case serve:
 			break;
@@ -101,6 +112,11 @@ void client_session(int sd){
 			case withdraw:
 			break;
 			case query:
+				
+				readers++;
+				if(readers == 1){//If first reader, lock write.
+					sem_wait(write);
+				}
 			break;
 			case end:
 			break;
@@ -242,6 +258,17 @@ int main(){
 
 	int sd;
 	struct sigaction memclean;
+	if(sem_init(read,1,21) == -1){
+		printf("Read semaphore init fail.");
+	}
+	else if(sem_init(write,1,1) == -1){
+		printf("Write semaphore init fail.");
+	}
+	else if(sem_init(welcome,1,1) == -1){
+		print("Welcome semaphore init fail.")
+	}
+	readers = 0;
+	//Semaphores at ready. No one reading. 
 	memclean.sa_handler = organized_cleaning;
 	sigemptyset (&memclean.sa_mask);
 	sigaddset (&memclean.sa_mask, SIGINT);
