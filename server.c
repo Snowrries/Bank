@@ -53,7 +53,24 @@ void client_session(int sd){
 		//Here, we have a line of input from client. Let's decipher it.
 		sscanf(storage, "%sm %sm", &command, &arguments);
 		/*Check validity for command, switch, then check argument validity. */
-		
+		switch(command){
+			case "create":
+			break;
+			case "serve":
+			break;
+			case "deposit":
+			break;
+			case "withdraw":
+			break;
+			case "query":
+			break;
+			case "end":
+			break;
+			case "quit":
+			break;
+			default:
+			printf("Please enter a valid command, in all lowercase. ");
+		}
 	}
 
 }
@@ -157,9 +174,9 @@ int socks(const char* port){
 	return 0;
 	//return sd;
 }
-/*
+
 void sharingcaring(){
-	/* Shared Memory Section
+	/* Shared Memory Section*/
 
 //	int shmid; //Is declared globally
 
@@ -182,7 +199,7 @@ void sharingcaring(){
 	
 	//shared mem sucess.  Begin Server/Client Comunnications.
 }
-*/
+
 int main(){
 
 	int sd;
@@ -197,14 +214,14 @@ int main(){
 	
 	//Shared Memory Setup
 	//sharingcaring();
-		//Shared Memory Init
+	//Shared Memory Init
 
 	
 	//account data[20] = p;//Not sure if this is ok?
 	
 	
 	
-	//sigprocmask(SIG_UNBLOCK, &memclean.sa_mask, NULL);
+	sigprocmask(SIG_UNBLOCK, &memclean.sa_mask, NULL);
 
 	//Server-Client Service
 	socks("54261");
