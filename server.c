@@ -185,11 +185,11 @@ void sharingcaring(){
 	int size;
 	size = 20 * sizeof(account_t); // 20 accounts
 	if(errno = 0, (key = ftok("testplan.txt",42)) == -1){
-		printf("ftok failed; errno :  %s\n", strerror( errno )");
+		printf("ftok failed; errno :  %s\n", strerror( errno ));
 		exit( 1 );
 	}
 	else if(errno = 0, (shmid = shmget(key,size,IPC_CREAT | IPC_EXCL)) == -1){
-		printf("shmget failed; errno :  %s\n", strerror( errno )");
+		printf("shmget failed; errno :  %s\n", strerror( errno ));
 		exit( 1 );
 	}
 	else if((errno = 0, (p = (account*) shmat(shmid,NULL,0)) == (void*) -1) {
