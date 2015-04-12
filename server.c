@@ -6,7 +6,7 @@ int shmid;
 
 
 
-void organized_cleaning(int signal, siginfo_t *ignore, void *ignore2){
+void organized_cleaning(int signal){
 	shmctl(shmid, IPC_RMID, NULL);
 	/*Note: shmid is a global var. Further, sigint is blocked while shared memory is being created, 
 	so shmid is guaranteed to be a pointer to a valid block of shared memory*/
@@ -90,15 +90,19 @@ int socks(const char* port){
 		fprintf( stderr, "\x1b[1;31mgetaddrinfo( %s ) failed errno is %s.  File %s line %d.\x1b[0m\n", CLIENT_PORT, strerror( errno ), __FILE__, __LINE__ );
 		return -1;
 	}
+	else if ( errno = 0, (sd = socket( result->ai_family, result->ai_socktype, result->ai_protocol )) == -1 ){
+				printf("socket failed");
+				return -1;
+	}
 
-	else if ( setsockopt( sd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on) ) == -1 )
+	else if (setsockopt( sd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on) ) == -1 )
 	{
-		//printf( "setsockopt() failed in %s()\n", func );
+		printf( "setsockopt() failed");
 		return 0;
 	}
-	else if (errno = 0,bind( sd, (const struct sockaddr *)&addr, sizeof(addr) ) == -1 )
+	else if (errno = 0, bind( sd, result->ai_addr, result->ai_addrlen ) == -1)
 	{
-		//printf( "bind() failed in %s() line %d errno %d\n", func, __LINE__, errno );
+		printf( "bind() failed in  line  errno \n" );
 		close( sd );
 		return 0;
 	}
@@ -121,7 +125,7 @@ int socks(const char* port){
 			sporkd = accept(sd,(struct sockaddr *)&them, &addrlen);
 
 			pid = fork();
-			if(pid == -1)
+			if(pid < 0)
 			{
 				perror("Forking error.");
 				close(sporkd); // Make sure this is ok
@@ -195,6 +199,6 @@ int main(){
 	//Server-Client Service
 	socks("54261");
 
-	return 0;
+
 
 }
