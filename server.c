@@ -36,7 +36,7 @@ typedef enum {
 	query,
 	end,
 	quit
-} input;
+} inpt;
 void client_session(int sd){
 	char *buffer;
 	char *command;
@@ -265,7 +265,7 @@ int main(){
 		printf("Write semaphore init fail.");
 	}
 	else if(sem_init(welcome,1,1) == -1){
-		print("Welcome semaphore init fail.")
+		print("Welcome semaphore init fail.");
 	}
 	readers = 0;
 	//Semaphores at ready. No one reading. 
