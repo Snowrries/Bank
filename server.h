@@ -15,15 +15,11 @@
 #include <sys/socket.h>
 #include <errno.h>
 #include <signal.h>
-
+#include "Bank.h"
 
 #define CLIENT_PORT 54261
 
-	typedef struct account{
-		char* name;
-		float balance;
-		int session;
-	} account_t;
+
 	void organized_cleaning(int signal);
 	
 	void ChildSigHandler(int signal2);
