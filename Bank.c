@@ -19,6 +19,9 @@ float withdraw(struct account *acc,float amt){
 	if(amt < 0){
 		return acc->balance;
 	}
+	else if(amt > (acc->balance)){
+		return acc->balance;
+	}
 
 	return acc->balance -=amt;
 }
