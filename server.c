@@ -3,9 +3,7 @@
 
 
 account_t* p;
-int shmid;
 int readers;
-static sem_t actionCycleSemaphore;
 sem_t read;
 sem_t write;
 sem_t welcome;
@@ -27,41 +25,8 @@ void ChildSigHandler(int signal){
 	printf("Child process killed; PID: %d\n", (int)pid );
 }
 
-
-
-void periodic_printing_handler(int signal, siginfo_t *ignore, void *ignore2){
+void periodic_printing(int signal, siginfo_t *ignore, void *ignore2){
 	//Print account info every 20 seconds. Raise a signal in Server main function.
-	if(signal == SIGALRM){
-		sem_post(&actionCycleSemaphore);
-	}
-}
-
-void periodic_printing(void * ignore){
-	struct sigaction action;
-	struct itimerval interval;
-	int error;
-
-	action.sa_flags = SA_SIGINFO | SA_RESTART;
-	action.sa_sigaction = periodic_printing_handler;
-	sigemptyset(&action.sa_mask);
-	sigaction(SIGALRM,&action,0);
-	interval.it_interval.tv_sec = 20;
-	interval.it_interval.tv_usec = 0;
-	interval.it_value.tv_sec = 20;
-	interval.it_value.tv_usec = 0;
-	setitimer(ITIMER_REAL, &interval,0);
-	while(1){
-		sem_wait(&actionCycleSemaphore);
-		if((error = sem_trywait(read)) == EAGAIN){
-			continue;
-		}
-		sem_wait(read);
-		printAccounts(p);
-		sem_post(read);
-
-	}
-
-
 }
 
 
@@ -161,7 +126,7 @@ int socks(const char* port){
 void sharingcaring(){
 	/* Shared Memory Section*/
 
-
+	int shmid;
 	//	account_t* p; Is declared globally
 	key_t key;
 
