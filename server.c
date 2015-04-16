@@ -3,9 +3,16 @@
 
 
 account_t* p;
+int shmid;
 sem_t actionCycleSemaphore;
 static pthread_attr_t	user_attr;
 static pthread_attr_t	kernel_attr;
+static pthread_mutex_t mutex;
+static int connection_count = 0;
+static int readers;
+sem_t read;
+sem_t write;
+sem_t welcome;
 
 
 void organized_cleaning(int signale, siginfo_t *ignore, void *ignore2){
@@ -48,6 +55,7 @@ periodic_action_cycle_thread( void * ignore )
 {
 	struct sigaction	action;
 	struct itimerval	interval;
+
 
 	pthread_detach( pthread_self() );			// Don't wait for me, Argentina ...
 	action.sa_flags = SA_SIGINFO | SA_RESTART;
@@ -210,6 +218,8 @@ void sharingcaring(){
 int main(){
 
 	int sd;
+	char *func = "server main";
+	pthread_t		tid;
 	struct sigaction memclean;
 	if(sem_init(read,1,1) == -1){
 		printf("Read semaphore init fail.");
