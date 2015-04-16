@@ -4,6 +4,8 @@
 
 account_t* p;
 sem_t actionCycleSemaphore;
+static pthread_attr_t	user_attr;
+static pthread_attr_t	kernel_attr;
 
 
 void organized_cleaning(int signale, siginfo_t *ignore, void *ignore2){
@@ -64,6 +66,23 @@ periodic_action_cycle_thread( void * ignore )
 		printf( "There %s %d active %s.\n", ps( connection_count, "is", "are" ),
 			connection_count, ps( connection_count, "connection", "connections" ) );
 		pthread_mutex_unlock( &mutex );
+		sem_wait(read);
+		sem_wait(welcome);
+		readers++;
+		if(readers == 1){
+			sem_wait(write);
+		}
+		sem_post(welcome);
+		sem_post(read);
+		
+		periodic_printing();
+		
+		sem_wait(welcome);
+		readers--;
+		if(readers == 0){
+			sem_post(write);
+		}
+		sem_post(welcome);
 		sched_yield();					// necessary?
 	}
 	return 0;
@@ -221,7 +240,23 @@ int main(){
 	
 	
 	sigprocmask(SIG_UNBLOCK, &memclean.sa_mask, NULL);
+	
 
+	if ( pthread_attr_init( &kernel_attr ) != 0 )
+	{
+		printf( "pthread_attr_init() failed in %s()\n", func );
+		return 0;
+	}
+	else if ( pthread_attr_setscope( &kernel_attr, PTHREAD_SCOPE_SYSTEM ) != 0 )
+	{
+		printf( "pthread_attr_setscope() failed in %s() line %d\n", func, __LINE__ );
+		return 0;
+	}
+	else if ( pthread_create( &tid, &kernel_attr, periodic_action_cycle_thread, 0 ) != 0 )
+	{
+		printf( "pthread_create() failed in %s()\n", func );
+		return 0;
+	}
 	//Server-Client Service
 	socks("54261");
 
