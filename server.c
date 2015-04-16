@@ -3,20 +3,17 @@
 
 
 account_t* p;
-int readers;
-sem_t read;
-sem_t write;
-sem_t welcome;
+sem_t actionCycleSemaphore;
 
 
-void organized_cleaning(int signal){
+void organized_cleaning(int signale, siginfo_t *ignore, void *ignore2){
 	shmctl(shmid, IPC_RMID, NULL);
 	/*Note: shmid is a global var. Further, sigint is blocked while shared memory is being created, 
 	so shmid is guaranteed to be a pointer to a valid block of shared memory*/
 	raise(signal);
 }
 
-void ChildSigHandler(int signal){
+void ChildSigHandler(int signale, siginfo_t *ignore, void *ignore2){
 	pid_t pid;
 	int status;
 	while( (pid = waitpid(-1,&status,WNOHANG)) == -1){
@@ -24,9 +21,52 @@ void ChildSigHandler(int signal){
 	}
 	printf("Child process killed; PID: %d\n", (int)pid );
 }
+void print_handler(int signale, siginfo_t *ignore, void *ignore2){
+	if ( signale == SIGALRM )
+	{
+		sem_post( &actionCycleSemaphore );
+	}
+}
 
-void periodic_printing(int signal, siginfo_t *ignore, void *ignore2){
+void periodic_printing(){
 	//Print account info every 20 seconds. Raise a signal in Server main function.
+	for(int i = 0;i < 20; i++){
+		printf("Account name: %s \n", p[i]->name);
+		printf("Balance: %d \n", p[i]->balance);
+		if(p[i]->session){
+			printf("In session: Yes");
+		}
+		else{
+			printf("In session: No");
+		}
+	}
+}
+void *
+periodic_action_cycle_thread( void * ignore )
+{
+	struct sigaction	action;
+	struct itimerval	interval;
+
+	pthread_detach( pthread_self() );			// Don't wait for me, Argentina ...
+	action.sa_flags = SA_SIGINFO | SA_RESTART;
+	action.sa_sigaction = print_handler;
+	sigemptyset( &action.sa_mask );
+	sigaction( SIGALRM, &action, 0 );			// invoke periodic_action_handler() when timer expires
+	interval.it_interval.tv_sec = 20;
+	interval.it_interval.tv_usec = 0;
+	interval.it_value.tv_sec = 20;
+	interval.it_value.tv_usec = 0;
+	setitimer( ITIMER_REAL, &interval, 0 );			// every 20 seconds
+	for ( ;; )
+	{
+		sem_wait( &actionCycleSemaphore );		// Block until posted
+		pthread_mutex_lock( &mutex );
+		printf( "There %s %d active %s.\n", ps( connection_count, "is", "are" ),
+			connection_count, ps( connection_count, "connection", "connections" ) );
+		pthread_mutex_unlock( &mutex );
+		sched_yield();					// necessary?
+	}
+	return 0;
 }
 
 
@@ -152,7 +192,7 @@ int main(){
 
 	int sd;
 	struct sigaction memclean;
-	if(sem_init(read,1,21) == -1){
+	if(sem_init(read,1,1) == -1){
 		printf("Read semaphore init fail.");
 	}
 	else if(sem_init(write,1,1) == -1){
