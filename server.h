@@ -19,6 +19,7 @@
 
 #define CLIENT_PORT 54261
 
+	void periodic_printing_handler(int signal, siginfo_t *ignore, void *ignore2);
 
 	void organized_cleaning(int signal);
 	
