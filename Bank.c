@@ -11,7 +11,7 @@
 
 int serve(account_t *acc){
 	int error;
-	if((error = pthread_mutex_trylock(acc->lock)) == EBUSY){
+	if((error = pthread_mutex_trylock(&(acc->lock))) == EBUSY){
 		printf("Account is already in use");
 		return -1;
 	}
@@ -20,29 +20,29 @@ int serve(account_t *acc){
 
 		return -2;
 	}
-	pthread_mutex_lock(acc->lock);
+	pthread_mutex_lock(&(acc->lock)S);
 	acc->session = 1;
 
 	return 1;
 }
 
 struct account *create(char* name){
-	
 	int error;
-	if((error = pthread_mutex_trylock(newAccount)) == EBUSY){
-		printf("Account is already in use");
-		return -1;
-	}
-	else if(error != 0){
-		printf("Error at Line %s Account could not be accessed \n", __LINE__);
-		return -2;
-	}
-	pthread_mutex_lock(newAccount);
+		if((error = pthread_mutex_trylock(&newAccount)) == EBUSY){
+			printf("Account is already in use");
+			return -1;
+		}
+		if(error != 0){
+			printf("Error at Line %s Account could not be accessed \n", __LINE__);
+
+			return -2;
+		}
+	pthread_mutex_lock(&newAccount);
 	struct account *new =(struct account *) malloc(sizeof(struct account));
 	new->name = name;
 	new->balance = 0;
 	new->session = 0;
-	pthread_mutex_unlock(newAccount);
+	pthread_mutex_unlock(&newAccount);
 	return new;
 }
 
@@ -67,7 +67,7 @@ float deposit(account_t *acc,float amt){
 }
 
 void printAccounts(account_t *acc){
-	pthread_mutex_lock(newAccount);
+	pthread_mutex_lock(&newAccount);
 	int totalacc;
 	int i;
 	account_t *iter = acc;
@@ -80,15 +80,13 @@ void printAccounts(account_t *acc){
 		if(acc->session == 1){
 		printf("IN SERVICE \n");
 		}
-		else{print("NOT IN SERVICE");}
 		totalacc++;
 		iter ++;
 	}
 	printf("Total Accounts: %d",totalacc);
-	pthread_mutex_unlock(newAccount);
+	pthread_mutex_unlock(&newAccount);
 
 }
-
 
 float query(account_t *acc){
 	return acc->balance;
