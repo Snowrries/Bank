@@ -20,6 +20,7 @@ int serve(account_t *acc){
 
 		return -2;
 	}
+	pthread_mutex_lock(&(acc->lock));
 	acc->session = 1;
 
 	return 1;
