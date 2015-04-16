@@ -172,7 +172,7 @@ int main(){
 	//Note, there are forks in the server, but no threads... The forked processes are 2threaded. 
 	
 	//Shared Memory Setup
-	//sharingcaring();
+	sharingcaring();
 	//Shared Memory Init
 
 	
