@@ -7,6 +7,25 @@
 
 #include "Bank.h"
 
+
+
+int serve(struct account *acc){
+	int error;
+	if((error = pthread_mutex_trylock(acc->lock)) == EBUSY){
+		printf("Account is already in use");
+		return -1;
+	}
+	if(error != 0){
+		printf("Error at Line %s Account could not be accessed \n", __LINE__);
+
+		return -2;
+	}
+	pthread_mutex_lock(acc->lock);
+	acc->session = 1;
+
+	return 1;
+}
+
 struct account *create(char* name){
 	struct account *new =(struct account *) malloc(sizeof(struct account));
 	new->name = name;
