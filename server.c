@@ -69,62 +69,43 @@ void client_session(int sd){
 		buffer = malloc(sizeof(char)*9);
 		memcpy(buffer, command, sizeof(char)*9);
 		buffer[8] = '\0';
+		//Maybe consider converting to lowercase instead of telling them to type in lower.
 		if(strcmp(buffer, "create") == 0){
-			inpt = create;
+			sem_wait(read);
+			sem_wait(welcome);
+			sem_wait(write);
+			
+			//Uh...
+			sem_post(welcome);
+			sem_post(read);	
+			sem_post(write);
 		}
 		else if(strcmp(buffer, "serve") == 0){
-			inpt = serve;
+			
 		}
 		else if(strcmp(buffer, "deposit") == 0){
-			inpt = deposit;
+			
 		}
 		else if(strcmp(buffer, "withdraw") == 0){
-			inpt = withdraw;
+			
 		}
 		else if(strcmp(buffer, "query") == 0){
-			inpt = query;
+			readers++;
+			if(readers == 1){//If first reader, lock write.
+				sem_wait(write);
+			}
 		}
 		else if(strcmp(buffer, "end") == 0){
-			inpt = end;
+			
 		}
 		else if(strcmp(buffer, "quit") == 0){
-			inpt = quit;
+			
 		}
 		else{
-			inpt = -1;
-		}
-		
-		switch(inpt){
-			case create:
-				sem_wait(read);
-				sem_wait(welcome);
-				sem_wait(write);
-				
-				//Uh...
-				sem_post(welcome);
-				sem_post(read);
-				sem_post(write);
-			break;
-			case serve:
-			break;
-			case deposit:
-			break;
-			case withdraw:
-			break;
-			case query:
-				
-				readers++;
-				if(readers == 1){//If first reader, lock write.
-					sem_wait(write);
-				}
-			break;
-			case end:
-			break;
-			case quit:
-			break;
-			default:
 			printf("Please enter a valid command, in all lowercase. ");
 		}
+		
+		
 	}
 
 }
