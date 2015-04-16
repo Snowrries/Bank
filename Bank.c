@@ -27,16 +27,16 @@ int serve(account_t *acc){
 }
 
 struct account *create(char* name){
+	
 	int error;
-		if((error = pthread_mutex_trylock(newAccount)) == EBUSY){
-			printf("Account is already in use");
-			return -1;
-		}
-		if(error != 0){
-			printf("Error at Line %s Account could not be accessed \n", __LINE__);
-
-			return -2;
-		}
+	if((error = pthread_mutex_trylock(newAccount)) == EBUSY){
+		printf("Account is already in use");
+		return -1;
+	}
+	else if(error != 0){
+		printf("Error at Line %s Account could not be accessed \n", __LINE__);
+		return -2;
+	}
 	pthread_mutex_lock(newAccount);
 	struct account *new =(struct account *) malloc(sizeof(struct account));
 	new->name = name;
@@ -80,6 +80,7 @@ void printAccounts(account_t *acc){
 		if(acc->session == 1){
 		printf("IN SERVICE \n");
 		}
+		else{print("NOT IN SERVICE");}
 		totalacc++;
 		iter ++;
 	}
@@ -87,6 +88,7 @@ void printAccounts(account_t *acc){
 	pthread_mutex_unlock(newAccount);
 
 }
+
 
 float query(account_t *acc){
 	return acc->balance;
