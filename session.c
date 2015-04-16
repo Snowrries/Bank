@@ -35,20 +35,47 @@ void client_session(int sd){
 		buffer[8] = '\0';
 		//Maybe consider converting to lowercase instead of telling them to type in lower.
 		if(strcmp(buffer, "create") == 0){
-			sem_wait(read);
+			sem_wait(read);//This, right now, will cause deadlock.
 			sem_wait(welcome);
 			sem_wait(write);
-			buffer = realloc(sizeof(char)*100);
+			buffer = realloc(sizeof(char)*101);
 			sscanf(storage, "%s", &buffer);
-			act = create(buffer);
+			buffer[100]='\0';
+			for(i = 0; i < 20; i++){
+				if(p[i] == NULL){
+					//Make account...
+					p[i] = create(buffer);
+				}
+				else if(strcmp(p[i]->name, buffer) == 0){
+					//account already exists. 
+					//Handle ... somehow.
+					break;
+				}
+			}
 			
 			sem_post(read);
 			sem_post(welcome);	
 			sem_post(write);
 		}
 		else if(strcmp(buffer, "serve") == 0){
-			
-			
+			sem_wait(read);//This, right now, will cause deadlock.
+			sem_wait(welcome);
+			sem_wait(write);
+			buffer = realloc(sizeof(char)*101);
+			sscanf(storage, "%s", &buffer);
+			buffer[100]='\0';
+			for(i = 0; i < 20; i++){
+				if((p[i] != NULL) && (strcmp(p[i]->name, buffer) == 0)){
+					serve(buffer);
+					break;//I hope this exits the loop
+				}
+			}
+			if(i == 20){
+				//Could not serve. Account not found. Return such?
+			}
+			sem_post(read);
+			sem_post(welcome);	
+			sem_post(write);
 		}
 		else if(strcmp(buffer, "deposit") == 0){
 			
