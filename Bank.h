@@ -11,6 +11,8 @@
 #include <pthread.h>
 #include <errno.h>
 
+pthread_mutex_t newAccount;
+
 	typedef struct account{
 		char* name;
 		float balance;
@@ -19,15 +21,17 @@
 	} account_t;
 
 
+void printAccounts(account_t *acc);
+
 struct account *create(char* name);
 
-int serve(struct account *acc);
+int serve(account_t *acc);
 
-float withdraw(struct account *acc,float amt);
+float withdraw(account_t *acc,float amt);
 
-float deposit(struct account *acc,float amt);
+float deposit(account_t *acc,float amt);
 
-float query(struct account *acc);
+float query(account_t *acc);
 
 
 
