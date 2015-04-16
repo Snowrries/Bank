@@ -12,6 +12,10 @@ void client_session(int sd){
 	float money;
 	long senderIPaddr;
 	account *act;
+	int readers;
+	sem_t read;
+	sem_t write;
+	sem_t welcome;
 
 	while(1){
 		curr = 0;
