@@ -3,6 +3,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/shm.h>
+#include <sys/time.h>
 #include <semaphore.h>
 #include <stdio.h>
 #include <stdlib.h>
