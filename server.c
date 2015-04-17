@@ -42,6 +42,9 @@ void periodic_printing(){
 	int i;
 	//Print account info every 20 seconds. Raise a signal in Server main function.
 	for(i = 0;i < 20; i++){
+		if(p[i].name == NULL){
+			continue;
+		}
 		printf("Account name: %s \n", p[i].name);
 		printf("Balance: %f \n", p[i].balance);
 		if(p[i].session){
