@@ -17,6 +17,9 @@ void organized_cleaning(int signale){
 	shmctl(shmid, IPC_RMID, NULL);
 	/*Note: shmid is a global var. Further, sigint is blocked while shared memory is being created, 
 	so shmid is guaranteed to be a pointer to a valid block of shared memory*/
+	sem_destroy(reado);
+	sem_destroy(writeo);
+	sem_destroy(welcome);
 	raise(signale);
 }
 
@@ -89,7 +92,7 @@ periodic_action_cycle_thread( void * ignore )
 		sem_post(&welcome);
 		sched_yield();					// necessary?
 	}
-	return 0;
+	return 0;//We'll never get here... haha
 }
 
 
@@ -105,8 +108,11 @@ void client_session(int sd){
 	float ignore;
 	float money;
 	long senderIPaddr;
+	int insesh;
 	account_t *act;
 
+	insesh  = 0;
+	
 	while(1){
 		curr = 0;
 		size = 0;
@@ -123,44 +129,59 @@ void client_session(int sd){
 		//Here, we have a line of input from client. Let's decipher it.
 		sscanf(storage, "%sm %sm", &command, &arguments);
 		/*Check validity for command, switch, then check argument validity. */
-
+		if(strlen(command)>9){
+			printf("Invalid command.");
+			continue;
+		}
 		buffer = malloc(sizeof(char)*9);
 		memcpy(buffer, command, sizeof(char)*9);
 		buffer[8] = '\0';
 		//Maybe consider converting to lowercase instead of telling them to type in lower.
 		if(strcmp(buffer, "create") == 0){
-			sem_wait(&reado);//This, right now, will cause deadlock.
-			sem_wait(&welcome);
+			if(insesh == 1){
+				//Send something like 'you're already being served. 
+				//Must end session to creat account'
+				continue;
+			}
+			sem_wait(&reado);
 			sem_wait(&writeo);
 			buffer = realloc(buffer,sizeof(char)*101);
 			sscanf(storage, "%s", &buffer);
 			buffer[100]='\0';
 			for(i = 0; i < 20; i++){
-				if(p[i] == NULL){
+				if(p[i] == NULL){//We need to init all SHM to 0
 					//Make account...
 					p[i] = create(buffer);
+					break;
 				}
 				else if(strcmp(p[i]->name, buffer) == 0){
 					//account already exists.
 					//Handle ... somehow.
+					//Send error, already exists
 					break;
 				}
 			}
-
+			if(i == 20){
+				//Send error, bank full
+			}
+			
 			sem_post(&reado);
-			sem_post(&welcome);
 			sem_post(&writeo);
 		}
 		else if(strcmp(buffer, "serve") == 0){
-			sem_wait(&reado);//This, right now, will cause deadlock.
-			sem_wait(&welcome);
+			if(insesh == 1){
+				//Send something like 'you're already being served.'
+				continue;
+			}
+			insesh = 1;
+			sem_wait(&reado);
 			sem_wait(&writeo);
 			buffer = realloc(buffer,sizeof(char)*101);
 			sscanf(storage, "%s", &buffer);
 			buffer[100]='\0';
 			for(i = 0; i < 20; i++){
-				if((p[i] != NULL) && (strcmp(p[i]->name, buffer) == 0)){
-					serve(p[i]);
+				if((p[i] != NULL) && (strcmp(p[i].name, buffer) == 0)){
+					serve(act = *p[i]);
 					break;//I hope this exits the loop
 				}
 			}
@@ -168,26 +189,95 @@ void client_session(int sd){
 				//Could not serve. Account not found. Return such?
 			}
 			sem_post(&reado);
-			sem_post(&welcome);
 			sem_post(&writeo);
 		}
 		else if(strcmp(buffer, "deposit") == 0){
-
-		}
-		else if(strcmp(buffer, "withdraw") == 0){
-
-		}
-		else if(strcmp(buffer, "query") == 0){
+			if(insesh == 0){
+				//Send something like 'you must be in a session to use this operation.'
+				continue;
+			}
+			sem_wait(read);
+			sem_wait(welcome);
 			readers++;
 			if(readers == 1){//If first reader, lock write.
 				sem_wait(&writeo);
 			}
+			sem_post(welcome);
+			sem_post(read);
+			//Try scanfing a number. truncate to the size of a float,
+			//error check if string was greater
+			//call the deposit,
+			
+			sem_wait(welcome);
+			readers--;
+			if(readers == 0){//If last reader, unlock write.
+				sem_post(&writeo);
+			}
+			sem_post(welcome);
+			
+			
+			//send new balance, or error if broken
+		}
+		else if(strcmp(buffer, "withdraw") == 0){
+			if(insesh == 0){
+				//Send something like 'you must be in a session to use this operation.'
+				continue;
+			}
+			sem_wait(read);
+			sem_wait(welcome);
+			readers++;
+			if(readers == 1){//If first reader, lock write.
+				sem_wait(&writeo);
+			}
+			sem_post(welcome);
+			sem_post(read);
+			//Try scanfing the next entry as a float,
+			//call the withdraw,
+			
+			sem_wait(welcome);
+			readers--;
+			if(readers == 0){//If last reader, unlock write.
+				sem_post(&writeo);
+			}
+			sem_post(welcome);
+			
+			//send new balance, or error if broken
+			
+		}
+		else if(strcmp(buffer, "query") == 0){
+			if(insesh == 0){
+				//Send something like 'you must be in a session to use this operation.'
+				continue;
+			}
+			sem_wait(read);
+			sem_wait(welcome);
+			readers++;
+			if(readers == 1){//If first reader, lock write.
+				sem_wait(&writeo);
+			}
+			sem_post(welcome);
+			sem_post(read);
+			//Send account balance
+			
+			sem_wait(welcome);
+			readers--;
+			if(readers == 0){//If last reader, unlock write.
+				sem_post(&writeo);
+			}
+			sem_post(welcome);
 		}
 		else if(strcmp(buffer, "end") == 0){
-
+			if(insesh == 0){
+				//Send something like 'you must be in a session to use this operation.'
+				continue;
+			}
+			insesh = 0;
+			
+			
 		}
 		else if(strcmp(buffer, "quit") == 0){
-
+			//Unlock the mutex in the act...
+			return;
 		}
 		else{
 			printf("Please enter a valid command, in all lowercase. ");
@@ -309,7 +399,10 @@ void sharingcaring(){
 		printf("shmget failed; errno :  %s\n", strerror( errno ));
 		exit( 1 );
 	}
-	else if(errno = 0, (p = (account_t**) shmat(shmid,NULL,0)) == (void*) -1) {
+	else if(errno = 0, (p = (account_t*) shmat(shmid,NULL,0)) == (void*) -1) {
+		//No. p is an array of pointers to account_t's. 
+		//We need its size to be right. And we cast it as an account_t*, 
+		//so p[0] is the first account_t, p[1] is the second account_t, etc.
 		printf( "shmat() failed; errno :  %s\n", strerror( errno ) );
 		exit( 1 );
 	}
@@ -350,7 +443,7 @@ int main(){
 	//account data[20] = p;//Not sure if this is ok?
 	
 	
-	/*
+	
 	sigprocmask(SIG_UNBLOCK, &memclean.sa_mask, NULL);
 	
 
@@ -369,7 +462,7 @@ int main(){
 		printf( "pthread_create() failed in %s()\n", func );
 		return 0;
 	}
-	*/
+	
 	//Server-Client Service
 	socks("54261");
 
