@@ -19,13 +19,16 @@ pthread_mutex_t newAccount;
 		char* name;
 		float balance;
 		int session;
+		int created;
 		pthread_mutex_t lock;
 	} account_t;
 
 
 void printAccounts(account_t *acc);
 
-struct account *create(char* name);
+struct account *create(account_t *acc,char* name);
+
+struct account *init();
 
 int serve(account_t *acc);
 
