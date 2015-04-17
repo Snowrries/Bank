@@ -1,7 +1,7 @@
 
 #include "Bank.h"
 
-
+pthread_mutex_t newAccount;
 
 int serve(account_t *acc){
 	int error;
@@ -10,7 +10,7 @@ int serve(account_t *acc){
 		return -1;
 	}
 	if(error != 0){
-		printf("Error at Line %s Account could not be accessed \n", __LINE__);
+		printf("Error at Line %d Account could not be accessed \n", __LINE__);
 
 		return -2;
 	}
@@ -27,7 +27,7 @@ struct account create(account_t *acc,char* name){
 			return *acc;
 		}
 		if(error != 0){
-			printf("Error at Line %s Account could not be accessed \n", __LINE__);
+			printf("Error at Line %d Account could not be accessed \n", __LINE__);
 
 			return *acc;
 		}
@@ -41,20 +41,35 @@ struct account create(account_t *acc,char* name){
 
 struct account *init(){
 	int error;
-			if((error = pthread_mutex_trylock(&newAccount)) == EBUSY){
+
+			if((error = pthread_mutex_lock(&newAccount)) == EBUSY){
 				printf("Account is already in use");
+				exit(1);
 				return NULL;
 			}
 			if(error != 0){
-				printf("Error at Line %s Account could not be accessed \n", __LINE__);
-
+				printf("Error at Line %d Account could not be accessed \n", __LINE__);
+				exit(1);
 				return NULL;
 			}
-		pthread_mutex_lock(&newAccount);
+
 		struct account *new =(struct account *) malloc(sizeof(struct account));
 		new->name = NULL;
+		if(pthread_mutex_init(&(new->lock),NULL) != 0){
+					printf("Mutex init failed");
+					return NULL;
+				}
 		pthread_mutex_unlock(&newAccount);
 		return new;
+}
+
+void Bankinit(){
+
+	if(pthread_mutex_init(&newAccount,NULL)!=0){
+			printf("Mutex Init Failed");
+			exit(1);
+		}
+
 }
 
 float withdraw(account_t *acc,float amt){

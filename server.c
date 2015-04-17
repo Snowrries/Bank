@@ -14,13 +14,12 @@ sem_t *welcome;
 
 
 void organized_cleaning(int signale){
-	shmctl(shmid, IPC_RMID, NULL);
+
 	/*Note: shmid is a global var. Further, sigint is blocked while shared memory is being created, 
 	so shmid is guaranteed to be a pointer to a valid block of shared memory*/
 	sem_destroy(reado);
 	sem_destroy(writeo);
 	sem_destroy(welcome);
-	raise(signale);
 	close(sd);
 }
 
@@ -44,7 +43,7 @@ void periodic_printing(){
 	//Print account info every 20 seconds. Raise a signal in Server main function.
 	for(i = 0;i < 20; i++){
 		printf("Account name: %s \n", p[i].name);
-		printf("Balance: %d \n", p[i].balance);
+		printf("Balance: %f \n", p[i].balance);
 		if(p[i].session){
 			printf("In session: Yes");
 		}
@@ -127,7 +126,7 @@ void client_session(int sd){
 
 		}
 		//Here, we have a line of input from client. Let's decipher it.
-		sscanf(storage, "%sm %sm", &command, &arguments);
+		sscanf(storage, "%sm %sm", command, arguments);
 		/*Check validity for command, switch, then check argument validity. */
 		if(strlen(command)>9){
 			printf("Invalid command.");
@@ -150,7 +149,7 @@ void client_session(int sd){
 			sem_wait(reado);
 			sem_wait(writeo);
 			buffer = realloc(buffer,sizeof(char)*101);
-			sscanf(storage, "%s", &buffer);
+			sscanf(storage, "%s", buffer);
 			buffer[100]='\0';
 			for(i = 0; i < 20; i++){
 				if(p[i].name != NULL){//We need to init all SHM to 0
@@ -188,7 +187,7 @@ void client_session(int sd){
 			sem_wait(reado);
 			sem_wait(writeo);
 			buffer = realloc(buffer,sizeof(char)*101);
-			sscanf(storage, "%s", &buffer);
+			sscanf(storage, "%s", buffer);
 			buffer[100]='\0';
 			for(i = 0; i < 20; i++){
 				if(((p[i].name) != NULL) && (strcmp(p[i].name, buffer) == 0)){
@@ -396,7 +395,7 @@ void sharingcaring(){
 
 	int shmid;
 	int i;
-	account_t* temp = p;
+	account_t* temp ;
 	key_t key;
 
 	int size;
@@ -416,17 +415,15 @@ void sharingcaring(){
 		printf( "shmat() failed; errno :  %s\n", strerror( errno ) );
 		exit( 1 );
 	}
-	
-	for(i = 0; i< 20 ; i++){
-		if ((p = init()) != NULL){
-			p++;
+	for(i = 0 ; i < 20 ; i++){
+		if((temp = init()) == NULL){
+			printf("Init failed");
+			exit(1);
 		}
-		else
-		{
-			printf("Error Initializing shared memory Line: %d.",__LINE__);
-		}
+				p[i] = *(init());
+
 	}
-	p = temp;
+
 
 	//shared mem sucess.  Begin Server/Client Comunnications.
 }
@@ -450,17 +447,20 @@ int main(){
 			exit(1);
 		}
 	readers = 0;
-	//Semaphores at ready. No one reading. 
+	//Semaphores at ready. No one reading.
+
 	memclean.sa_handler = organized_cleaning;
 	sigemptyset (&memclean.sa_mask);
 	sigaddset (&memclean.sa_mask, SIGINT);
 	memclean.sa_flags = 0;
 	sigaction(SIGINT, &memclean, NULL);
 	sigprocmask(SIG_BLOCK, &memclean.sa_mask, NULL);
+
+	sigprocmask(SIG_UNBLOCK, &memclean.sa_mask, NULL);
 	//Note, there are forks in the server, but no threads... The forked processes are 2threaded. 
-	
+	Bankinit();
 	//Shared Memory Setup
-	//sharingcaring();
+	sharingcaring();
 	//Shared Memory Init
 
 	
@@ -468,9 +468,8 @@ int main(){
 	
 	
 
-	sigprocmask(SIG_UNBLOCK, &memclean.sa_mask, NULL);
 
-/*
+
 	if ( pthread_attr_init( &kernel_attr ) != 0 )
 	{
 		printf( "pthread_attr_init() failed in %s()\n", func );
@@ -486,7 +485,7 @@ int main(){
 		printf( "pthread_create() failed in %s()\n", func );
 		return 0;
 	}
-*/
+
 	//Server-Client Service
 	socks("54261");
 

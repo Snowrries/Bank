@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-pthread_mutex_t newAccount;
+
 
 	typedef struct account{
 		char* name;
@@ -25,6 +25,8 @@ pthread_mutex_t newAccount;
 
 
 void printAccounts(account_t *acc);
+
+void Bankinit();
 
 struct account create(account_t *acc,char* name);
 
