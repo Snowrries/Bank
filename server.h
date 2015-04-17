@@ -27,6 +27,12 @@
 	
 	void client_session(int sd);
 	
+	void *periodic_action_cycle_thread( void * ignore );
+
+	void periodic_printing();
+
+	void print_handler(int signale, siginfo_t *ignore, void *ignore2);
+
 	int socks();
 
 	void sharingcaring();

@@ -2,7 +2,7 @@
 #include "server.h"
 
 
-account_t* p;
+account_t** p;
 int shmid;
 sem_t actionCycleSemaphore;
 //static pthread_attr_t	user_attr;
@@ -39,9 +39,9 @@ void periodic_printing(){
 	int i;
 	//Print account info every 20 seconds. Raise a signal in Server main function.
 	for(i = 0;i < 20; i++){
-		printf("Account name: %s \n", p[i].name);
-		printf("Balance: %d \n", p[i].balance);
-		if(p[i].session){
+		printf("Account name: %s \n", p[i]->name);
+		printf("Balance: %d \n", p[i]->balance);
+		if(p[i]->session){
 			printf("In session: Yes");
 		}
 		else{
@@ -90,6 +90,112 @@ periodic_action_cycle_thread( void * ignore )
 		sched_yield();					// necessary?
 	}
 	return 0;
+}
+
+
+void client_session(int sd){
+	char *buffer;
+	char *command;
+	char *arguments;
+	char request[2048];
+	char* storage;
+	char temp;
+	int i;
+	int curr,size;
+	float ignore;
+	float money;
+	long senderIPaddr;
+	account_t *act;
+
+	while(1){
+		curr = 0;
+		size = 0;
+		while((size = recv(sd,request,sizeof(request),0)) > 0){
+			curr += size;
+			if(curr > 2048){
+				storage = "Overflow input. Please enter another command.";
+				write( sd, storage, strlen(storage) + 1 );
+				continue;
+			}
+			strncpy(storage, request, size);
+
+		}
+		//Here, we have a line of input from client. Let's decipher it.
+		sscanf(storage, "%sm %sm", &command, &arguments);
+		/*Check validity for command, switch, then check argument validity. */
+
+		buffer = malloc(sizeof(char)*9);
+		memcpy(buffer, command, sizeof(char)*9);
+		buffer[8] = '\0';
+		//Maybe consider converting to lowercase instead of telling them to type in lower.
+		if(strcmp(buffer, "create") == 0){
+			sem_wait(&reado);//This, right now, will cause deadlock.
+			sem_wait(&welcome);
+			sem_wait(&writeo);
+			buffer = realloc(buffer,sizeof(char)*101);
+			sscanf(storage, "%s", &buffer);
+			buffer[100]='\0';
+			for(i = 0; i < 20; i++){
+				if(p[i] == NULL){
+					//Make account...
+					p[i] = create(buffer);
+				}
+				else if(strcmp(p[i]->name, buffer) == 0){
+					//account already exists.
+					//Handle ... somehow.
+					break;
+				}
+			}
+
+			sem_post(&reado);
+			sem_post(&welcome);
+			sem_post(&writeo);
+		}
+		else if(strcmp(buffer, "serve") == 0){
+			sem_wait(&reado);//This, right now, will cause deadlock.
+			sem_wait(&welcome);
+			sem_wait(&writeo);
+			buffer = realloc(buffer,sizeof(char)*101);
+			sscanf(storage, "%s", &buffer);
+			buffer[100]='\0';
+			for(i = 0; i < 20; i++){
+				if((p[i] != NULL) && (strcmp(p[i]->name, buffer) == 0)){
+					serve(p[i]);
+					break;//I hope this exits the loop
+				}
+			}
+			if(i == 20){
+				//Could not serve. Account not found. Return such?
+			}
+			sem_post(&reado);
+			sem_post(&welcome);
+			sem_post(&writeo);
+		}
+		else if(strcmp(buffer, "deposit") == 0){
+
+		}
+		else if(strcmp(buffer, "withdraw") == 0){
+
+		}
+		else if(strcmp(buffer, "query") == 0){
+			readers++;
+			if(readers == 1){//If first reader, lock write.
+				sem_wait(&writeo);
+			}
+		}
+		else if(strcmp(buffer, "end") == 0){
+
+		}
+		else if(strcmp(buffer, "quit") == 0){
+
+		}
+		else{
+			printf("Please enter a valid command, in all lowercase. ");
+		}
+
+
+	}
+
 }
 
 
@@ -199,11 +305,11 @@ void sharingcaring(){
 		printf("ftok failed; errno :  %s\n", strerror( errno ));
 		exit( 1 );
 	}
-	else if(errno = 0, (shmid = shmget(key,size,IPC_CREAT | IPC_EXCL)) == -1){
+	else if(errno = 0, (shmid = shmget(key,size,0666 | IPC_CREAT | IPC_EXCL)) == -1){
 		printf("shmget failed; errno :  %s\n", strerror( errno ));
 		exit( 1 );
 	}
-	else if(errno = 0, (p = (account_t*) shmat(shmid,NULL,0)) == (void*) -1) {
+	else if(errno = 0, (p = (account_t**) shmat(shmid,NULL,0)) == (void*) -1) {
 		printf( "shmat() failed; errno :  %s\n", strerror( errno ) );
 		exit( 1 );
 	}
