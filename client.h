@@ -13,7 +13,10 @@ struct account{
 	float balance;
 	int session;
 };
+int reliablemail(int sd, char* buf, int len);
 
-int ping();
+int connect_to_server( const char * server, const char * port );
+
+int serverscout();
 
 #endif //client.h
