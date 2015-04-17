@@ -1,3 +1,6 @@
+#include "session.h"
+static int readers;
+
 void client_session(int sd){
 	char *buffer;
 	char *command;
@@ -55,20 +58,20 @@ void client_session(int sd){
 			sscanf(storage, "%s", &buffer);
 			buffer[100]='\0';
 			for(i = 0; i < 20; i++){
-				if(p[i] == NULL){//We need to init all SHM to 0
+				if(p[i].name != NULL){//We need to init all SHM to 0
 					//Make account...
-					p[i] = create(buffer);
+					p[i] = create(&p[i],buffer);
 					break;
 				}
-				else if(strcmp(p[i]->name, buffer) == 0){
+				else if(strcmp(p[i].name, buffer) == 0){
 					//account already exists.
 					//Handle ... somehow.
 					//Send error, already exists
 					break;
 				}
 			}
-			sem_post(&reado);
-			sem_post(&writeo);
+			sem_post(reado);
+			sem_post(writeo);
 			if(i == 20){
 				//Send error, bank full
 				if(send(sd, "Error, bank full.", 17,0)==-1){
@@ -87,13 +90,13 @@ void client_session(int sd){
 			continue;
 			}
 			insesh = 1;
-			sem_wait(&reado);
-			sem_wait(&writeo);
+			sem_wait(reado);
+			sem_wait(writeo);
 			buffer = realloc(buffer,sizeof(char)*101);
 			sscanf(storage, "%s", &buffer);
 			buffer[100]='\0';
 			for(i = 0; i < 20; i++){
-				if(((p[i].name)[0] != '\0') && (strcmp(p[i].name, buffer) == 0)){
+				if(((p[i].name) != NULL) && (strcmp(p[i].name, buffer) == 0)){
 					serve(act = *p[i]);
 					break;//I hope this exits the loop
 				}
@@ -102,22 +105,22 @@ void client_session(int sd){
 				//Could not serve. Account not found. Return such?
 				
 			}
-			sem_post(&reado);
-			sem_post(&writeo);
+			sem_post(reado);
+			sem_post(writeo);
 		}
 		else if(strcmp(buffer, "deposit") == 0){
 			if(insesh == 0){
 				//Send something like 'you must be in a session to use this operation.'
 				continue;
 			}
-			sem_wait(read);
+			sem_wait(reado);
 			sem_wait(welcome);
 			readers++;
 			if(readers == 1){//If first reader, lock write.
-				sem_wait(&writeo);
+				sem_wait(writeo);
 			}
 			sem_post(welcome);
-			sem_post(read);
+			sem_post(reado);
 			//Try scanfing a number. truncate to the size of a float,
 			//error check if string was greater
 			//call the deposit,
@@ -125,7 +128,7 @@ void client_session(int sd){
 			sem_wait(welcome);
 			readers--;
 			if(readers == 0){//If last reader, unlock write.
-				sem_post(&writeo);
+				sem_post(writeo);
 			}
 			sem_post(welcome);
 
@@ -141,7 +144,7 @@ void client_session(int sd){
 			sem_wait(welcome);
 			readers++;
 			if(readers == 1){//If first reader, lock write.
-				sem_wait(&writeo);
+				sem_wait(writeo);
 			}
 			sem_post(welcome);
 			sem_post(read);
@@ -151,7 +154,7 @@ void client_session(int sd){
 			sem_wait(welcome);
 			readers--;
 			if(readers == 0){//If last reader, unlock write.
-				sem_post(&writeo);
+				sem_post(writeo);
 			}
 			sem_post(welcome);
 
@@ -163,14 +166,14 @@ void client_session(int sd){
 				//Send something like 'you must be in a session to use this operation.'
 				continue;
 			}
-			sem_wait(read);
+			sem_wait(reado);
 			sem_wait(welcome);
 			readers++;
 			if(readers == 1){//If first reader, lock write.
-				sem_wait(&writeo);
+				sem_wait(writeo);
 			}
 			sem_post(welcome);
-			sem_post(read);
+			sem_post(reado);
 			//Send account balance
 
 			sem_wait(welcome);
