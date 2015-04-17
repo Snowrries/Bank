@@ -7,9 +7,9 @@ sem_t actionCycleSemaphore;
 //static pthread_attr_t	user_attr;
 static pthread_attr_t	kernel_attr;
 static int readers;
-sem_t *reado;
-sem_t *writeo;
-sem_t *welcome;
+sem_t reado;
+sem_t writeo;
+sem_t welcome;
 
 
 void organized_cleaning(int signale){
@@ -41,9 +41,9 @@ void periodic_printing(){
 	int i;
 	//Print account info every 20 seconds. Raise a signal in Server main function.
 	for(i = 0;i < 20; i++){
-		printf("Account name: %s \n", p[i].name);
-		printf("Balance: %d \n", p[i].balance);
-		if(p[i].session){
+		printf("Account name: %s \n", p[i]->name);
+		printf("Balance: %d \n", p[i]->balance);
+		if(p[i]->session){
 			printf("In session: Yes");
 		}
 		else{
@@ -72,29 +72,29 @@ periodic_action_cycle_thread( void * ignore )
 	{
 		sem_wait( &actionCycleSemaphore );		// Block until posted
 
-		sem_wait(reado);
-		sem_wait(welcome);
+		sem_wait(&reado);
+		sem_wait(&welcome);
 		readers++;
 		if(readers == 1){
-			sem_wait(writeo);
+			sem_wait(&writeo);
 		}
-		sem_post(welcome);
-		sem_post(reado);
+		sem_post(&welcome);
+		sem_post(&reado);
 		
 		periodic_printing();
 		
-		sem_wait(welcome);
+		sem_wait(&welcome);
 		readers--;
 		if(readers == 0){
-			sem_post(writeo);
+			sem_post(&writeo);
 		}
-		sem_post(welcome);
+		sem_post(&welcome);
 		sched_yield();					// necessary?
 	}
 	return 0;//We'll never get here... haha
 }
 
-
+/*
 void client_session(int sd){
 	char *buffer;
 	char *command;
@@ -127,10 +127,10 @@ void client_session(int sd){
 		}
 		//Here, we have a line of input from client. Let's decipher it.
 		sscanf(storage, "%sm %sm", &command, &arguments);
-		/*Check validity for command, switch, then check argument validity. */
+		//Check validity for command, switch, then check argument validity. 
 		if(strlen(command)>9){
 			printf("Invalid command.");
-			continue;
+			continue
 		}
 		buffer = malloc(sizeof(char)*9);
 		memcpy(buffer, command, sizeof(char)*9);
@@ -139,70 +139,82 @@ void client_session(int sd){
 		if(strcmp(buffer, "create") == 0){
 			if(insesh == 1){
 				//Send something like 'you're already being served.
+				if(send(sd, "Active customer session: cannot create new account.", 51 , 0) == -1){
+					perror("send");
+				}
+				//Let's hope I counted right
 				//Must end session to creat account'
 				continue;
 			}
-			sem_wait(reado);
-			sem_wait(writeo);
+			sem_wait(&reado);
+			sem_wait(&writeo);
 			buffer = realloc(buffer,sizeof(char)*101);
 			sscanf(storage, "%s", &buffer);
 			buffer[100]='\0';
 			for(i = 0; i < 20; i++){
-				 if(p[i].name == NULL){//We need to init all SHM to 0
+				if(p[i] == NULL){//We need to init all SHM to 0
 					//Make account...
-					p[i] = create(&p[i],buffer);
+					p[i] = create(buffer);
 					break;
-				 }
-				else if((strcmp(p[i].name, buffer)) == 0){
+				}
+				else if(strcmp(p[i]->name, buffer) == 0){
 					//account already exists.
 					//Handle ... somehow.
 					//Send error, already exists
 					break;
 				}
 			}
+			sem_post(&reado);
+			sem_post(&writeo);
 			if(i == 20){
 				//Send error, bank full
+				if(send(sd, "Error, bank full.", 17,0)==-1){
+					perror("send");
+				}
 			}
 
-			sem_post(reado);
-			sem_post(writeo);
+
 		}
 		else if(strcmp(buffer, "serve") == 0){
 			if(insesh == 1){
 				//Send something like 'you're already being served.'
-				continue;
+				if(send(sd,"Already serving an account. Please close before attempting to serve another.",76,0)== -1){
+					perror("send");
+				}
+			continue;
 			}
 			insesh = 1;
-			sem_wait(reado);
-			sem_wait(writeo);
+			sem_wait(&reado);
+			sem_wait(&writeo);
 			buffer = realloc(buffer,sizeof(char)*101);
 			sscanf(storage, "%s", &buffer);
 			buffer[100]='\0';
 			for(i = 0; i < 20; i++){
-				if((p[i].name != NULL) && (strcmp(p[i].name, buffer) == 0)){
-					serve(act = &p[i]);
+				if(((p[i].name)[0] != '\0') && (strcmp(p[i].name, buffer) == 0)){
+					serve(act = *p[i]);
 					break;//I hope this exits the loop
 				}
 			}
 			if(i == 20){
 				//Could not serve. Account not found. Return such?
+				
 			}
-			sem_post(reado);
-			sem_post(writeo);
+			sem_post(&reado);
+			sem_post(&writeo);
 		}
 		else if(strcmp(buffer, "deposit") == 0){
 			if(insesh == 0){
 				//Send something like 'you must be in a session to use this operation.'
 				continue;
 			}
-			sem_wait(reado);
+			sem_wait(read);
 			sem_wait(welcome);
 			readers++;
 			if(readers == 1){//If first reader, lock write.
-				sem_wait(writeo);
+				sem_wait(&writeo);
 			}
 			sem_post(welcome);
-			sem_post(reado);
+			sem_post(read);
 			//Try scanfing a number. truncate to the size of a float,
 			//error check if string was greater
 			//call the deposit,
@@ -210,7 +222,7 @@ void client_session(int sd){
 			sem_wait(welcome);
 			readers--;
 			if(readers == 0){//If last reader, unlock write.
-				sem_post(writeo);
+				sem_post(&writeo);
 			}
 			sem_post(welcome);
 
@@ -222,21 +234,21 @@ void client_session(int sd){
 				//Send something like 'you must be in a session to use this operation.'
 				continue;
 			}
-			sem_wait(reado);
+			sem_wait(read);
 			sem_wait(welcome);
 			readers++;
 			if(readers == 1){//If first reader, lock write.
-				sem_wait(writeo);
+				sem_wait(&writeo);
 			}
 			sem_post(welcome);
-			sem_post(reado);
+			sem_post(read);
 			//Try scanfing the next entry as a float,
 			//call the withdraw,
 
 			sem_wait(welcome);
 			readers--;
 			if(readers == 0){//If last reader, unlock write.
-				sem_post(writeo);
+				sem_post(&writeo);
 			}
 			sem_post(welcome);
 
@@ -248,20 +260,20 @@ void client_session(int sd){
 				//Send something like 'you must be in a session to use this operation.'
 				continue;
 			}
-			sem_wait(reado);
+			sem_wait(read);
 			sem_wait(welcome);
 			readers++;
 			if(readers == 1){//If first reader, lock write.
-				sem_wait(writeo);
+				sem_wait(&writeo);
 			}
 			sem_post(welcome);
-			sem_post(reado);
+			sem_post(read);
 			//Send account balance
 
 			sem_wait(welcome);
 			readers--;
 			if(readers == 0){//If last reader, unlock write.
-				sem_post(writeo);
+				sem_post(&writeo);
 			}
 			sem_post(welcome);
 		}
@@ -286,7 +298,7 @@ void client_session(int sd){
 	}
 
 }
-
+*/
 
 int socks(const char* port){
 	int sd;
@@ -384,8 +396,7 @@ void sharingcaring(){
 	/* Shared Memory Section*/
 
 	int shmid;
-	int i;
-	account_t* temp = p;
+	//	account_t* p; Is declared globally
 	key_t key;
 
 	int size;
@@ -406,17 +417,6 @@ void sharingcaring(){
 		exit( 1 );
 	}
 	
-	for(i = 0; i< 20 ; i++){
-		if ((p = init()) != NULL){
-			p++;
-		}
-		else
-		{
-			printf("Error Initializing shared memory Line: %d.",__LINE__);
-		}
-	}
-	p = temp;
-
 	//shared mem sucess.  Begin Server/Client Comunnications.
 }
 
