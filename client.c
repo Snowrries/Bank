@@ -59,6 +59,26 @@ connect_to_server( const char * server, const char * port )
 		return -1;
 	}
 }
+void serverscout(){
+	
+}
+int reliablemail(int sd, char *buffer, int len){
+	int	bsent;
+	int	bleft;
+	int	nom;
+	bsent = 0;
+	bleft = len;
+	while(bleft > 0){
+		if((nom = send(sd, buffer+bsent, bleft, 0)) == -1){
+			perror("send");
+			return -1;
+		}
+		bsent += nom;
+		bleft -= nom;
+	}
+	return 0;
+}
+
 
 int
 main( int argc, char ** argv )
@@ -67,15 +87,22 @@ main( int argc, char ** argv )
 	char			message[256];
 	char			string[512];
 	char			buffer[512];
-	char			prompt[] = "Enter a string>>";
 	char			output[512];
+	char			account[101];
 	int			len;
 	int			count;
+	int 			munni;
+	int 			i;
+
 
 	if ( argc < 2 )
 	{
 		fprintf( stderr, "\x1b[1;31mNo host name specified.  File %s line %d.\x1b[0m\n", __FILE__, __LINE__ );
 		exit( 1 );
+	}
+	else if( argc > 2){
+		printf("Too many arguments. Please input just a host name.");
+		exit(1);
 	}
 	else if ( (sd = connect_to_server( argv[1], "54261" )) == -1 )
 	{
@@ -85,13 +112,53 @@ main( int argc, char ** argv )
 	else
 	{
 		printf( "Connected to server %s\n", argv[1] );
-		while ( write( 1, prompt, sizeof(prompt) ), (len = read( 0, string, sizeof(string) )) > 0 )
+		printf("Available commands:\n create accountname\n serve accountname\n");
+		printf("deposit amount\n withdraw amount\n query\n end\n quit\n");
+		printf("Account names may only be up to 100 characters long. We'll truncate for you if it's too long. ");
+		printf("Please do not withdraw or deposit negative numbers. We do not deal in anti-currency.");
+		while ( 1 )
 		{
-			string[len-1]= '\0';
-			write( sd, string, strlen( string ) + 1 );
-			read( sd, buffer, sizeof(buffer) );
-			sprintf( output, "Result is >%s<\n", buffer );
+			printf("Enter command:\t");
+			//Ordered in this fashion because there are expected to be more withdraws and deposits
+			//Than send and receives.
+			if(scanf("%s %d",&command, &munni)==2){
+				//withdraws and deposits
+				len = strlen(command);
+				if(len > 8){
+					printf("Invalid command.");
+					continue;
+				}
+				for(i = 0; i < len; i++){
+					command[i] = (char)tolower(command[i]);
+				}
+				if(strcmp(command, "withdraw") == 0){
+					if((buffer = sprintf("withdraw %f", munni)) < 0){
+						printf("Invalid input...");
+						continue;
+					}
+					send(sd, buffer, strlen(buffer),0);//Hopefully munni is a valid float.
+				}
+			}
+			else if(scanf("%s %100s", &command, &account) == 2){
+				//Create, serve
+			}
+			else if(scanf("%s", &command) == 1){
+				//query, end, quit
+			}
+			else{
+				printf("Invalid input. Please check that there are no kittens prancing on your keyboard before proceeding.");
+				continue;
+			}
+
+			else if(strcmp(command,"withdraw") == 0){
+				
+			}
+			
+			//string[len-1]= '\0';
+			//write( sd, string, strlen( string ) + 1 );
+			
 			write( 1, output, strlen(output) );
+			sleep(3);
 		}
 		close( sd );
 		return 0;
