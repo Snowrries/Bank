@@ -120,7 +120,7 @@ main( int argc, char ** argv )
 		{
 			printf("Enter command:\t");
 			//Ordered in this fashion because there are expected to be more withdraws and deposits
-			//Than send and receives.
+			//Than send and receives... Just a guess though. Shouldn't affect efficiency terribly.
 			if(scanf("%s %d",&command, &munni)==2){
 				//withdraws and deposits
 				len = strlen(command);
@@ -131,33 +131,73 @@ main( int argc, char ** argv )
 				for(i = 0; i < len; i++){
 					command[i] = (char)tolower(command[i]);
 				}
-				if(strcmp(command, "withdraw") == 0){
-					if((buffer = sprintf("withdraw %f", munni)) < 0){
+				if((strcmp(command, "withdraw") == 0) || (strcmp(command, "deposit") == 0)){
+					if((buffer = sprintf("%s %f", command, munni)) < 0){
 						printf("Invalid input...");
 						continue;
 					}
-					send(sd, buffer, strlen(buffer),0);//Hopefully munni is a valid float.
+					if(reliablemail(sd, buffer, strlen(buffer)) == -1){
+						printf("Failed to send to server. Try again?");
+					};//Hopefully munni is a valid float.
+				}
+				else{
+					printf("Invalid command.");
+					continue;
 				}
 			}
+			
 			else if(scanf("%s %100s", &command, &account) == 2){
 				//Create, serve
+				len = strlen(command);
+				if(len > 6){
+					printf("Invalid command.");
+					continue;
+				}
+				for(i = 0; i < len; i++){
+					command[i] = (char)tolower(command[i]);
+				}
+				if((strcmp(command, "create") == 0) || (strcmp(command, "serve") == 0)){
+					if((buffer = sprintf("%s %s", command, account)) < 0){
+						printf("Invalid input...");
+						continue;
+					}
+					if(reliablemail(sd, buffer, strlen(buffer)) == -1){
+						printf("Failed to send to server. Try again?");
+					}//You can trust on this mail gettin there!
+					//Just maybe not in one piece...
+				}
+				else{
+					printf("Invalid command.");
+					continue;
+				}
 			}
+			
 			else if(scanf("%s", &command) == 1){
 				//query, end, quit
+				len = strlen(command);
+				if(len > 5){
+					printf("Invalid command.");
+					continue;
+				}
+				for(i = 0; i < len; i++){
+					command[i] = (char)tolower(command[i]);
+				}
+				if((strcmp(command, "query") == 0) || (strcmp(command, "end") == 0)|| (strcmp(command, "quit") == 0)){
+					if(reliablemail(sd, command, len) == -1){
+						printf("Failed to send to server. Try again?");
+					}//Hopefully munni is a valid float.
+				}
+				else{
+					printf("Invalid command.");
+					continue;
+				}
 			}
+			
 			else{
 				printf("Invalid input. Please check that there are no kittens prancing on your keyboard before proceeding.");
 				continue;
 			}
-
-			else if(strcmp(command,"withdraw") == 0){
-				
-			}
 			
-			//string[len-1]= '\0';
-			//write( sd, string, strlen( string ) + 1 );
-			
-			write( 1, output, strlen(output) );
 			sleep(3);
 		}
 		close( sd );
