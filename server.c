@@ -384,7 +384,8 @@ void sharingcaring(){
 	/* Shared Memory Section*/
 
 	int shmid;
-	//	account_t* p; Is declared globally
+	int i;
+	account_t* temp = p;
 	key_t key;
 
 	int size;
@@ -405,6 +406,17 @@ void sharingcaring(){
 		exit( 1 );
 	}
 	
+	for(i = 0; i< 20 ; i++){
+		if ((p = init()) != NULL){
+			p++;
+		}
+		else
+		{
+			printf("Error Initializing shared memory Line: %d.",__LINE__);
+		}
+	}
+	p = temp;
+
 	//shared mem sucess.  Begin Server/Client Comunnications.
 }
 
