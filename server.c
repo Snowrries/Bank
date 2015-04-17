@@ -1,12 +1,11 @@
-
 #include "server.h"
 
 
-account_t** p;
+account_t* p;
 int shmid;
 sem_t actionCycleSemaphore;
 //static pthread_attr_t	user_attr;
-//static pthread_attr_t	kernel_attr;
+static pthread_attr_t	kernel_attr;
 static int readers;
 sem_t reado;
 sem_t writeo;
@@ -112,7 +111,7 @@ void client_session(int sd){
 	account_t *act;
 
 	insesh  = 0;
-	
+
 	while(1){
 		curr = 0;
 		size = 0;
@@ -139,7 +138,7 @@ void client_session(int sd){
 		//Maybe consider converting to lowercase instead of telling them to type in lower.
 		if(strcmp(buffer, "create") == 0){
 			if(insesh == 1){
-				//Send something like 'you're already being served. 
+				//Send something like 'you're already being served.
 				//Must end session to creat account'
 				continue;
 			}
@@ -164,7 +163,7 @@ void client_session(int sd){
 			if(i == 20){
 				//Send error, bank full
 			}
-			
+
 			sem_post(&reado);
 			sem_post(&writeo);
 		}
@@ -207,15 +206,15 @@ void client_session(int sd){
 			//Try scanfing a number. truncate to the size of a float,
 			//error check if string was greater
 			//call the deposit,
-			
+
 			sem_wait(welcome);
 			readers--;
 			if(readers == 0){//If last reader, unlock write.
 				sem_post(&writeo);
 			}
 			sem_post(welcome);
-			
-			
+
+
 			//send new balance, or error if broken
 		}
 		else if(strcmp(buffer, "withdraw") == 0){
@@ -233,16 +232,16 @@ void client_session(int sd){
 			sem_post(read);
 			//Try scanfing the next entry as a float,
 			//call the withdraw,
-			
+
 			sem_wait(welcome);
 			readers--;
 			if(readers == 0){//If last reader, unlock write.
 				sem_post(&writeo);
 			}
 			sem_post(welcome);
-			
+
 			//send new balance, or error if broken
-			
+
 		}
 		else if(strcmp(buffer, "query") == 0){
 			if(insesh == 0){
@@ -258,7 +257,7 @@ void client_session(int sd){
 			sem_post(welcome);
 			sem_post(read);
 			//Send account balance
-			
+
 			sem_wait(welcome);
 			readers--;
 			if(readers == 0){//If last reader, unlock write.
@@ -272,8 +271,8 @@ void client_session(int sd){
 				continue;
 			}
 			insesh = 0;
-			
-			
+
+
 		}
 		else if(strcmp(buffer, "quit") == 0){
 			//Unlock the mutex in the act...
@@ -340,7 +339,6 @@ int socks(const char* port){
 	else if ( listen( sd, 100 ) == -1 )
 	{
 		printf("listen failed");
-	//	printf( "Listen failed. Speak up or I have to put in my hearing aids.\nlisten() failed in %s() line %d errno %d\n", func, __LINE__, errno );
 		close( sd );
 		return 0;
 	}
@@ -400,8 +398,8 @@ void sharingcaring(){
 		exit( 1 );
 	}
 	else if(errno = 0, (p = (account_t*) shmat(shmid,NULL,0)) == (void*) -1) {
-		//No. p is an array of pointers to account_t's. 
-		//We need its size to be right. And we cast it as an account_t*, 
+		//No. p is an array of pointers to account_t's.
+		//We need its size to be right. And we cast it as an account_t*,
 		//so p[0] is the first account_t, p[1] is the second account_t, etc.
 		printf( "shmat() failed; errno :  %s\n", strerror( errno ) );
 		exit( 1 );
@@ -416,15 +414,18 @@ int main(){
 	char *func = "server main";
 	pthread_t		tid;
 	struct sigaction memclean;
-	if(sem_init(&reado,1,1) == -1){
-		printf("Read semaphore init fail.");
-	}
-	else if(sem_init(&writeo,1,1) == -1){
-		printf("Write semaphore init fail.");
-	}
-	else if(sem_init(&welcome,1,1) == -1){
-		printf("Welcome semaphore init fail.");
-	}
+	if((reado = sem_open("reado",O_CREAT,0640,20)) == SEM_FAILED){
+			printf("Read semaphore init fail.");
+			exit(1);
+		}
+		else if((writeo = sem_open("writeo",O_CREAT,0640,1)) == SEM_FAILED){
+			printf("Write semaphore init fail.");
+			exit(1);
+		}
+		else if((welcome = sem_open("welcome",O_CREAT,0640,1)) == SEM_FAILED){
+			printf("Welcome semaphore init fail.");
+			exit(1);
+		}
 	readers = 0;
 	//Semaphores at ready. No one reading. 
 	memclean.sa_handler = organized_cleaning;
@@ -443,9 +444,9 @@ int main(){
 	//account data[20] = p;//Not sure if this is ok?
 	
 	
-	
+
 	sigprocmask(SIG_UNBLOCK, &memclean.sa_mask, NULL);
-	
+
 
 	if ( pthread_attr_init( &kernel_attr ) != 0 )
 	{
@@ -462,7 +463,7 @@ int main(){
 		printf( "pthread_create() failed in %s()\n", func );
 		return 0;
 	}
-	
+
 	//Server-Client Service
 	socks("54261");
 
