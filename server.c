@@ -148,9 +148,9 @@ void client_session(int sd){
 			sscanf(storage, "%s", &buffer);
 			buffer[100]='\0';
 			for(i = 0; i < 20; i++){
-				 if(strlen(p[i].name) == 0){//We need to init all SHM to 0
+				 if(p[i].name == NULL){//We need to init all SHM to 0
 					//Make account...
-					p[i] = create(buffer);
+					p[i] = create(&p[i],buffer);
 					break;
 				 }
 				else if((strcmp(p[i].name, buffer)) == 0){
@@ -179,7 +179,7 @@ void client_session(int sd){
 			sscanf(storage, "%s", &buffer);
 			buffer[100]='\0';
 			for(i = 0; i < 20; i++){
-				if((strlen(p[i].name) != 0) && (strcmp(p[i].name, buffer) == 0)){
+				if((p[i].name != NULL) && (strcmp(p[i].name, buffer) == 0)){
 					serve(act = &p[i]);
 					break;//I hope this exits the loop
 				}

@@ -26,7 +26,7 @@ pthread_mutex_t newAccount;
 
 void printAccounts(account_t *acc);
 
-struct account *create(account_t *acc,char* name);
+struct account create(account_t *acc,char* name);
 
 struct account *init();
 

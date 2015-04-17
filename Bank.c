@@ -20,23 +20,23 @@ int serve(account_t *acc){
 	return 1;
 }
 
-struct account *create(account_t *acc,char* name){
+struct account create(account_t *acc,char* name){
 	int error;
 		if((error = pthread_mutex_trylock(&newAccount)) == EBUSY){
 			printf("Account is already in use");
-			return NULL;
+			return *acc;
 		}
 		if(error != 0){
 			printf("Error at Line %s Account could not be accessed \n", __LINE__);
 
-			return NULL;
+			return *acc;
 		}
 	pthread_mutex_lock(&newAccount);
 	acc->name = name;
 	acc->balance = 0;
 	acc->session = 0;
 	pthread_mutex_unlock(&newAccount);
-	return acc;
+	return *acc;
 }
 
 struct account *init(){
@@ -52,8 +52,7 @@ struct account *init(){
 			}
 		pthread_mutex_lock(&newAccount);
 		struct account *new =(struct account *) malloc(sizeof(struct account));
-		char *null = '\0';
-		strcpy(new->name,null);
+		new->name = NULL;
 		pthread_mutex_unlock(&newAccount);
 		return new;
 }
