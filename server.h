@@ -15,8 +15,8 @@
 #include <sys/socket.h>
 #include <errno.h>
 #include <signal.h>
-#include "Bank.h"
 #include "session.h"
+#include "Bank.h"
 
 #define CLIENT_PORT 54261
 
