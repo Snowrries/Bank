@@ -55,7 +55,7 @@ struct account *init(){
 		}
 		
 		struct account *new =(struct account *) malloc(sizeof(struct account));
-		new->name = NULL;
+		(new->name)[0] = '\0';
 		new->session = 0;
 		new->balance = 0;
 		if(pthread_mutex_init(&(new->lock),NULL) != 0){
