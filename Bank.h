@@ -19,7 +19,7 @@
 		char* name;
 		float balance;
 		int session;
-		int created;
+//		int created;
 		pthread_mutex_t lock;
 	} account_t;
 
