@@ -12,10 +12,6 @@
 #include	<netdb.h>
 #include	<ctype.h>
 
-
-
-
-
 static pthread_attr_t	kernel_attr;
 int
 connect_to_server( const char * server, const char * port )
@@ -166,6 +162,7 @@ main( int argc, char ** argv )
 			fgets(line, sizeof(line), stdin);
 
 			if(sscanf(line,"%9s %f\n",command, &munni)==2){
+				printf("read as float? %s %f", command, munni);
 				//withdraws and deposits
 				len = strlen(command);
 				if(len > 8){
