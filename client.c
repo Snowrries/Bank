@@ -100,8 +100,8 @@ main( int argc, char ** argv )
 	int			sd;
 	char			message[256];
 	char			buffer[512];
-	char			account[101];
-	char			command[1024];
+	char			account[102];
+	char			command[10];
 	int			len;
 	float 			munni;
 	int 			i;
@@ -158,7 +158,7 @@ main( int argc, char ** argv )
 
 			fgets(line, sizeof(line), stdin);
 
-			if(sscanf(line,"%s %f\n",command, &munni)==2){
+			if(sscanf(line,"%9s %f\n",command, &munni)==2){
 				//withdraws and deposits
 				len = strlen(command);
 				if(len > 8){
@@ -183,11 +183,15 @@ main( int argc, char ** argv )
 				}
 			}
 			
-			else if(sscanf(line,"%s %s\n", command, account) == 2){
+			else if(sscanf(line,"%7s %101s\n", command, account) == 2){
 				//Create, serve
+				if(strlen(account) == 101){
+					printf("Account name too long.\n");
+					continue;
+				}
 				len = strlen(command);
 				if(len > 6){
-					printf("Invalid command.");
+					printf("Invalid command.\n");
 					continue;
 				}
 				for(i = 0; i < len; i++){
@@ -209,7 +213,7 @@ main( int argc, char ** argv )
 				}
 			}
 			
-			else if(sscanf(line,"%s\n", command) == 1){
+			else if(sscanf(line,"%6s\n", command) == 1){
 				//query, end, quit
 				len = strlen(command);
 				if(len > 5){
