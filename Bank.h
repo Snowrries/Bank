@@ -17,7 +17,7 @@
 
 
 	typedef struct account{
-		char* name;
+		char name[101];
 		float balance;
 		int session;
 //		int created;
