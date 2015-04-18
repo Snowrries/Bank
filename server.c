@@ -239,7 +239,7 @@ void client_session(int sd){
 		}
 		
 		else if(sscanf(line,"%7s %101s", command, account) == 2){
-			printf("%s, %f\n", command, account);
+			printf("%s, %s\n", command, account);
 			if(insesh == 1){
 				//Send something like 'you're already being served.
 				if(send(sd, "Active customer session: cannot create or serve new account.", 60 , 0) == -1){
