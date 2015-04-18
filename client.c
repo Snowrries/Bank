@@ -30,7 +30,7 @@ connect_to_server( const char * server, const char * port )
 	struct addrinfo		addrinfo;
 	struct addrinfo *	result;
 	char			message[256];
-	struct sigaction end;
+
 
 	addrinfo.ai_flags = 0;
 	addrinfo.ai_family = AF_INET;		// IPv4 only
@@ -41,11 +41,7 @@ connect_to_server( const char * server, const char * port )
 	addrinfo.ai_canonname = NULL;
 	addrinfo.ai_next = NULL;
 
-	end.sa_flags = 0;
-	end.sa_sigaction = child_cleaning;
-	sigemptyset (&end.sa_mask);
-	sigaddset (&end.sa_mask, SIGINT);
-	sigaction(SIGINT, &end, NULL);
+
 	if ( getaddrinfo( server, port, &addrinfo, &result ) != 0 )
 	{
 		fprintf( stderr, "\x1b[1;31mgetaddrinfo( %s ) failed.  File %s line %d.\x1b[0m\n", server, __FILE__, __LINE__ );
@@ -93,7 +89,6 @@ void *serverscout(void *sdx){
 		else{
 			perror("recv");
 		}
-		printf("Bytes received: %d", status);
 	}
 }
 int reliablemail(int sd, char *buffer, int len){
@@ -127,6 +122,7 @@ main( int argc, char ** argv )
 	float 			munni;
 	int 			i;
 	char			line[1024];
+	struct sigaction end;
 	
 	char *func = "client main";
 
@@ -169,6 +165,13 @@ main( int argc, char ** argv )
 		printf("deposit amount\n withdraw amount\n query\n end\n quit\n");
 		printf("Account names may only be up to 100 characters long. We'll truncate for you if it's too long. \n");
 		printf("Please do not withdraw or deposit negative numbers. We do not deal in anti-currency.\n");
+
+		end.sa_flags = 0;
+		end.sa_sigaction = EndClient;
+		sigemptyset (&end.sa_mask);
+		sigaddset (&end.sa_mask, SIGINT);
+		sigaction(SIGINT, &end, NULL);
+
 		while ( clientend )
 		{
 			command[0] = '\0';
