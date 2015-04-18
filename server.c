@@ -141,13 +141,14 @@ void client_session(int sd){
 	float munni;
 	account_t *act;
 	struct sigaction end;
+	struct sigaction clientend;
 	insesh  = 0;
 
 	sem_t *reado;
 	sem_t *writeo;
 	sem_t *welcome;
 
-	reado = sem_open("reado",O_CREAT,0644,0);
+	 reado = sem_open("reado",O_CREAT,0644,0);
 	writeo= sem_open("writeo",O_CREAT,0644,0);
 	welcome = sem_open("welcome",O_CREAT,0644,0);
 	end.sa_flags = 0;
@@ -155,6 +156,14 @@ void client_session(int sd){
 	sigemptyset (&end.sa_mask);
 	sigaddset (&end.sa_mask, SIGQUIT);
 	sigaction(SIGQUIT, &end, NULL);
+
+	clientend.sa_flags = 0;
+	clientend.sa_sigaction = child_cleaning;
+	sigemptyset (&clientend.sa_mask);
+	sigaddset (&clientend.sa_mask, SIGPIPE);
+	sigaction(SIGPIPE, &clientend, NULL);
+
+
 
 	while(deathflag == 1){
 		curr = 0;
@@ -184,8 +193,8 @@ void client_session(int sd){
 
 		printf("%s\n",line);
 
-		if(sscanf(request,"%9s %g\n",command, &munni)==2){
-			printf("word %s, %g \n", command, munni);
+		if(sscanf(request,"%9s %f\n",command, &munni)==2){
+			printf("word %s, %f \n", command, munni);
 			if(insesh == 0){
 				//Send something like 'you must be in a session to use this operation.'
 				if(send(sd, "You must be in a session to withdraw or deposit.", 48 , 0) == -1){
