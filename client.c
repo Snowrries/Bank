@@ -90,7 +90,7 @@ main( int argc, char ** argv )
 	char			account[101];
 	char			*command;
 	int			len;
-	int 			munni;
+	float 			munni;
 	int 			i;
 
 
