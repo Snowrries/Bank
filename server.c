@@ -211,6 +211,9 @@ void client_session(int sd){
 						printf("Account Made");
 						fflush(stdout);
 						create(&p[i],account);
+						sem_post(reado);
+						sem_post(welcome);
+						sem_post(writeo);
 						break;
 					}
 					else if(strcmp(p[i].name, account) == 0){
@@ -220,6 +223,9 @@ void client_session(int sd){
 						if(send(sd, "Account name already exists.", 28 , 0) == -1){
 							perror("send");
 						}
+						sem_post(reado);
+						sem_post(welcome);
+						sem_post(writeo);
 						break;
 					}
 				}
@@ -229,6 +235,9 @@ void client_session(int sd){
 				for(i = 0; i < 20; i++){
 					if(((p[i].name) != NULL) && (strcmp(p[i].name, account) == 0)){
 						serve(act = &p[i]);
+						sem_post(reado);
+						sem_post(welcome);
+						sem_post(writeo);
 						break;//I hope this exits the loop
 					}
 				}
