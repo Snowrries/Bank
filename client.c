@@ -101,7 +101,7 @@ main( int argc, char ** argv )
 	char			message[256];
 	char			buffer[512];
 	char			account[101];
-//	char			*command = NULL;
+	char			command[1024];
 	int			len;
 	float 			munni;
 	int 			i;
@@ -150,7 +150,7 @@ main( int argc, char ** argv )
 		printf("Please do not withdraw or deposit negative numbers. We do not deal in anti-currency.\n");
 		while ( 1 )
 		{
-			char command[1024];
+			command[0] = '\0';
 			sleep(3);
 			printf("Enter command:\t\n");
 			//Ordered in this fashion because there are expected to be more withdraws and deposits
@@ -234,7 +234,6 @@ main( int argc, char ** argv )
 				printf("Invalid input. Please check that there are no kittens prancing on your keyboard before proceeding.\n");
 				continue;
 			}
-			free(command);
 			
 		}
 		close( sd );
