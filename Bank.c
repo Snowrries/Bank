@@ -32,12 +32,12 @@ struct account create(account_t *acc,char* name){
 		printf("Error at Line %d Account could not be accessed \n", __LINE__);
 		return *acc;
 	}
+	printf("End of create function.\n");
 
 //	pthread_mutex_lock(&newAccount);
 	memcpy(acc->name, name, strlen(name)+1);
 	acc->balance = 0;
 	acc->session = 0;
-	printf("End of create function.\n");
 	pthread_mutex_unlock(&newAccount);
 	return *acc;
 }
