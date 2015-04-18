@@ -22,9 +22,9 @@
 #define CLIENT_PORT 54261
 
 
-	void organized_cleaning(int signale, siginfo_t *ignore, void *ignore2);
+	void organized_cleaning(int signale);
 	
-	void ChildSigHandler(int signale, siginfo_t *ignore, void *ignore2);
+	void ChildSigHandler(int signale);
 	
 	void client_session(int sd);
 	
