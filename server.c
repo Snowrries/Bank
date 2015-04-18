@@ -58,11 +58,11 @@ void periodic_printing(){
 //		printf("Account name: %s \n", p[i].name);
 //		printf("Balance: %f \n", p[i].balance);
 		if(p[i].session){
-			write( 1, message, sprintf( message, "\x1b[2;33m In session: Yes  \x1b[0m\n", p[i].balance ) );
+			write( 1, message, sprintf( message, "\x1b[2;33m In session: Yes  \x1b[0m\n" ) );
 			//printf("In session: Yes\n");
 		}
 		else{
-			write( 1, message, sprintf( message, "\x1b[2;33m In session: No  \x1b[0m\n", p[i].balance ) );
+			write( 1, message, sprintf( message, "\x1b[2;33m In session: No  \x1b[0m\n" ) );
 			//printf("In session: No\n");
 		}
 	}
