@@ -50,9 +50,9 @@ void periodic_printing(){
 	char message[256];
 	//Print account info every 20 seconds. Raise a signal in Server main function.
 	for(i = 0;i < 20; i++){
-//		if(p[i].name == NULL){
-//			continue;
-//		}
+		if(p[i].name == NULL){
+			continue;
+		}
 		write( 1, message, sprintf( message, "\x1b[2;33mAccount name: %s ...\x1b[0m\n", p[i].name ) );
 		write( 1, message, sprintf( message, "\x1b[2;33mBalance: %f ...\x1b[0m\n", p[i].balance ) );
 //		printf("Account name: %s \n", p[i].name);
@@ -387,7 +387,7 @@ void client_session(int sd){
 	sem_close(writeo);
 	sem_close(welcome);
 	close(sd);
-	printf("Exiting Child");
+	printf("Exiting Child\n");
 }
 
 int socks(const char* port){
