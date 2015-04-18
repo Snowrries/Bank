@@ -64,7 +64,7 @@ void *serverscout(void *sdx){
 	while(1){
 		if((status = recv(sd, buffer, 100, 0)) > 0){
 			//print buffer in some thread safe manner. 
-			printf("%s", buffer);
+			printf("%s\n", buffer);
 		}
 		else if(status == 0){
 			printf("Lost connection.\n");
