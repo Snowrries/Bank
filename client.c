@@ -13,6 +13,7 @@
 #include	<string.h>
 #include	<sys/socket.h>
 #include	<netdb.h>
+#include	<string.h>
 
 
 int
@@ -85,12 +86,10 @@ main( int argc, char ** argv )
 {
 	int			sd;
 	char			message[256];
-	char			string[512];
 	char			buffer[512];
-	char			output[512];
 	char			account[101];
+	char			*command;
 	int			len;
-	int			count;
 	int 			munni;
 	int 			i;
 
@@ -121,7 +120,7 @@ main( int argc, char ** argv )
 			printf("Enter command:\t");
 			//Ordered in this fashion because there are expected to be more withdraws and deposits
 			//Than send and receives... Just a guess though. Shouldn't affect efficiency terribly.
-			if(scanf("%s %d",&command, &munni)==2){
+			if(scanf("%sm %d",&command, &munni)==2){
 				//withdraws and deposits
 				len = strlen(command);
 				if(len > 8){
@@ -146,7 +145,7 @@ main( int argc, char ** argv )
 				}
 			}
 			
-			else if(scanf("%s %100s", &command, &account) == 2){
+			else if(scanf("%sm %100s", &command, &account) == 2){
 				//Create, serve
 				len = strlen(command);
 				if(len > 6){
@@ -172,7 +171,7 @@ main( int argc, char ** argv )
 				}
 			}
 			
-			else if(scanf("%s", &command) == 1){
+			else if(scanf("%sm", &command) == 1){
 				//query, end, quit
 				len = strlen(command);
 				if(len > 5){
@@ -197,7 +196,7 @@ main( int argc, char ** argv )
 				printf("Invalid input. Please check that there are no kittens prancing on your keyboard before proceeding.");
 				continue;
 			}
-			
+			free(command);
 			sleep(3);
 		}
 		close( sd );
