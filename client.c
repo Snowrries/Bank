@@ -173,7 +173,7 @@ main( int argc, char ** argv )
 						printf("Invalid input...\n");
 						continue;
 					}
-					if(reliablemail(sd, buffer, strlen(buffer)) == -1){
+					if(reliablemail(sd, buffer, strlen(buffer)+1) == -1){
 						printf("Failed to send to server. Try again?\n");
 					};//Hopefully munni is a valid float.
 				}
@@ -202,7 +202,7 @@ main( int argc, char ** argv )
 						printf("Invalid input...\n");
 						continue;
 					}
-					if(reliablemail(sd, buffer, strlen(buffer)) == -1){
+					if(reliablemail(sd, buffer, strlen(buffer)+1) == -1){
 						printf("Failed to send to server. Try again?\n");
 					}//You can trust on this mail gettin there!
 					//Just maybe not in one piece...
@@ -224,7 +224,7 @@ main( int argc, char ** argv )
 					command[i] = (char)tolower(command[i]);
 				}
 				if((strcmp(command, "query") == 0) || (strcmp(command, "end") == 0)|| (strcmp(command, "quit") == 0)){
-					if(reliablemail(sd, command, len) == -1){
+					if(reliablemail(sd, command, len+1) == -1){
 						printf("Failed to send to server. Try again?\n");
 					}//Hopefully munni is a valid float.
 				}
