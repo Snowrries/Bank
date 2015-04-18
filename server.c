@@ -118,18 +118,14 @@ periodic_action_cycle_thread( void * ignore )
 }
 
 void client_session(int sd){
-	char *buffer;
-	char *command = NULL;
-	char *arguments = NULL;
-	char request[2048];
-	char* storage;
-//	char temp;
+	char command[9];
+	char account[101];
+	char request[256];
+	char line[1024];
 	int i;
 	int curr,size;
-//	float ignore;
-//	float money;
-//	long senderIPaddr;
 	int insesh;
+	int munni;
 	account_t *act;
 	struct sigaction end;
 	insesh  = 0;
@@ -147,29 +143,19 @@ void client_session(int sd){
 
 		while((size = recv(sd,request,sizeof(request),0)) > 0){
 			curr += size;
-			if(curr > 2048){
-				storage = "Overflow input. Please enter another command.";
-				write( sd, storage, strlen(storage) + 1 );
+			if(curr > 1024){
+				line = "Overflow input. Please enter another command.";
+				write( sd, line, strlen(line) + 1 );
 				continue;
 			}
-			strncpy(storage, request, size);
+			strncpy(line+curr, request, size);
 
 		}
-		//Here, we have a line of input from client. Let's decipher it.
-		sscanf(storage, "%sm %sm", command, arguments);
-		/*Check validity for command, switch, then check argument validity. */
-		if(strlen(command)>9){
-			printf("Invalid command.");
-			continue;
-		}
-		buffer = malloc(sizeof(char)*9);
-		memcpy(buffer, command, sizeof(char)*9);
-		buffer[8] = '\0';
-		//Maybe consider converting to lowercase instead of telling them to type in lower.
-		if(strcmp(buffer, "create") == 0){
+		//Create or serve
+		if(sscanf(line,"%7s %101s\n", command, account) == 2){
 			if(insesh == 1){
 				//Send something like 'you're already being served.
-				if(send(sd, "Active customer session: cannot create new account.", 51 , 0) == -1){
+				if(send(sd, "Active customer session: cannot create or serve new account.", 60 , 0) == -1){
 					perror("send");
 				}
 				//Let's hope I counted right
@@ -178,65 +164,63 @@ void client_session(int sd){
 			}
 			sem_wait(reado);
 			sem_wait(writeo);
-			buffer = realloc(buffer,sizeof(char)*101);
-			sscanf(storage, "%s", buffer);
-			buffer[100]='\0';
-			for(i = 0; i < 20; i++){
-				if(p[i].name != NULL){//We need to init all SHM to 0
-					//Make account...
-					p[i] = create(&p[i],buffer);
-					break;
+			if(strcmp(command, "create") == 0){
+				for(i = 0; i < 20; i++){
+					if(p[i].name != NULL){//We need to init all SHM to 0
+						//Make account...
+						create(&p[i],account);
+						break;
+					}
+					else if(strcmp(p[i].name, account) == 0){
+						//account already exists.
+						//Handle ... somehow.
+						//Send error, already exists
+						if(send(sd, "Account name already exists.", 28 , 0) == -1){
+							perror("send");
+						}
+						break;
+					}
 				}
-				else if(strcmp(p[i].name, buffer) == 0){
-					//account already exists.
-					//Handle ... somehow.
-					//Send error, already exists
-					break;
+			}
+			else if(strcmp(command, "serve") == 0){
+				for(i = 0; i < 20; i++){
+					if(((p[i].name) != NULL) && (strcmp(p[i].name, account) == 0)){
+						serve(act = &p[i]);
+						break;//I hope this exits the loop
+					}
 				}
+				if(i == 20){
+					//Could not serve. Account not found. Return such?
+					if(send(sd, "Could not find account.", 23 , 0) == -1){
+						perror("send");
+					}
+				}
+			}
+			else{
+				if(send(sd, "Unspecified error...", 20 , 0) == -1){
+					perror("send");
+				}	
 			}
 			sem_post(reado);
 			sem_post(writeo);
 			if(i == 20){
 				//Send error, bank full
-				if(send(sd, "Error, bank full.", 17,0)==-1){
+				if(send(sd, "Error, bank full.", 17,0) == -1){
 					perror("send");
 				}
 			}
-
-
 		}
-		else if(strcmp(buffer, "serve") == 0){
-			if(insesh == 1){
-				//Send something like 'you're already being served.'
-				if(send(sd,"Already serving an account. Please close before attempting to serve another.",76,0)== -1){
-					perror("send");
-				}
-			continue;
-			}
-			insesh = 1;
-			sem_wait(reado);
-			sem_wait(writeo);
-			buffer = realloc(buffer,sizeof(char)*101);
-			sscanf(storage, "%s", buffer);
-			buffer[100]='\0';
-			for(i = 0; i < 20; i++){
-				if(((p[i].name) != NULL) && (strcmp(p[i].name, buffer) == 0)){
-					serve(act = &p[i]);
-					break;//I hope this exits the loop
-				}
-			}
-			if(i == 20){
-				//Could not serve. Account not found. Return such?
+		else if(sscanf(line,"%9s %f\n",command, &munni)==2){
 
-			}
-			sem_post(reado);
-			sem_post(writeo);
-		}
-		else if(strcmp(buffer, "deposit") == 0){
 			if(insesh == 0){
 				//Send something like 'you must be in a session to use this operation.'
+				if(send(sd, "You must be in a session to withdraw or deposit.", 48 , 0) == -1){
+					perror("send");
+				}	
 				continue;
-			}
+			}	
+			//Deposit
+			
 			sem_wait(reado);
 			sem_wait(welcome);
 			readers++;
@@ -248,7 +232,27 @@ void client_session(int sd){
 			//Try scanfing a number. truncate to the size of a float,
 			//error check if string was greater
 			//call the deposit,
-
+			
+			if(strcmp(command, "deposit") == 0){
+				deposit(act, munni);
+				if(send(sd, "Deposited funds.", 16 , 0) == -1){
+					perror("send");
+				}	
+			}
+			
+			//Withdraw
+			else if(strcmp(command, "withdraw") == 0){
+				withdraw(act, munni);
+				if(send(sd, "Withdrew funds. Thank you for your generous donation. ;)", 56 , 0) == -1){
+					perror("send");
+				}	
+			}
+			
+			else{
+				if(send(sd, "Unspecified error...", 20 , 0) == -1){
+					perror("send");
+				}	
+			}
 			sem_wait(welcome);
 			readers--;
 			if(readers == 0){//If last reader, unlock write.
@@ -259,35 +263,15 @@ void client_session(int sd){
 
 			//send new balance, or error if broken
 		}
-		else if(strcmp(buffer, "withdraw") == 0){
+		//query, end, quit
+		
+		else if(sscanf(line,"%6s\n", command) == 1){
 			if(insesh == 0){
+				if((strcmp(command,"query")==0)||(strcmp(command,"end")==0))
 				//Send something like 'you must be in a session to use this operation.'
-				continue;
-			}
-			sem_wait(reado);
-			sem_wait(welcome);
-			readers++;
-			if(readers == 1){//If first reader, lock write.
-				sem_wait(writeo);
-			}
-			sem_post(welcome);
-			sem_post(reado);
-			//Try scanfing the next entry as a float,
-			//call the withdraw,
-
-			sem_wait(welcome);
-			readers--;
-			if(readers == 0){//If last reader, unlock write.
-				sem_post(writeo);
-			}
-			sem_post(welcome);
-
-			//send new balance, or error if broken
-
-		}
-		else if(strcmp(buffer, "query") == 0){
-			if(insesh == 0){
-				//Send something like 'you must be in a session to use this operation.'
+				if(send(sd,"You must be in a session to use this operation.", 47, 0)==0){
+					perror("send");
+				}
 				continue;
 			}
 			sem_wait(reado);
@@ -299,7 +283,50 @@ void client_session(int sd){
 			sem_post(welcome);
 			sem_post(reado);
 			//Send account balance
-
+			
+			if(strcmp(command, "query") == 0){
+				
+				sprintf(line,"%f",acc->balance);
+				if(send(sd, line, strlen(line), 0) == -1){
+					perror("send");
+				}
+			}
+			//end
+			else if(strcmp(command, "end") == 0){
+				//Consider error checking this
+				insesh = 0;
+				pthread_mutex_unlock(&(acc->lock));
+				if(send(sd,"Client session ended. You may now create another account, or be served.", 71, 0) == -1){
+					perror("send");
+				}
+			}
+			//quit
+			else if(strcmp(command, "quit") == 0){
+				if(insesh == 1){
+					pthread_mutex_unlock(&(acc->lock));
+					if(send(sd,"Client session ended. Goodbye.", 30 , 0) == -1){
+						perror("send");
+					}
+					
+				}
+				else{
+					if(send(sd,"Goodbye.", 8 , 0) == -1){
+						perror("send");
+					}
+				}
+				sem_wait(welcome);
+				readers--;
+				if(readers == 0){//If last reader, unlock write.
+					sem_post(writeo);
+				}
+				sem_post(welcome);
+				break;
+			}
+			else{
+				if(send(sd, "Unspecified error...", 20 , 0) == -1){
+					perror("send");
+				}	
+			}
 			sem_wait(welcome);
 			readers--;
 			if(readers == 0){//If last reader, unlock write.
@@ -307,19 +334,7 @@ void client_session(int sd){
 			}
 			sem_post(welcome);
 		}
-		else if(strcmp(buffer, "end") == 0){
-			if(insesh == 0){
-				//Send something like 'you must be in a session to use this operation.'
-				continue;
-			}
-			insesh = 0;
 
-
-		}
-		else if(strcmp(buffer, "quit") == 0){
-			//Unlock the mutex in the act...
-			return;
-		}
 		else{
 			printf("Please enter a valid command, in all lowercase. ");
 		}
@@ -340,7 +355,7 @@ int socks(const char* port){
 	struct addrinfo	addrinfo;
 	struct addrinfo *result;
 	socklen_t addrlen;
-	struct sockaddr_storage them;
+	struct sockaddr_line them;
 //	char message[256];
 	int on = 1;
 
@@ -398,7 +413,7 @@ int socks(const char* port){
 		}
 		
 		while((sporkd = accept(sd,(struct sockaddr *)&them, &addrlen)) != -1){
-			addrlen = sizeof(struct sockaddr_storage);
+			addrlen = sizeof(struct sockaddr_line);
 
 
 			pid = fork();
