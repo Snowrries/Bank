@@ -47,18 +47,23 @@ void print_handler(int signale, siginfo_t *ignore, void *ignore2){
 
 void periodic_printing(){
 	int i;
+	char message[256];
 	//Print account info every 20 seconds. Raise a signal in Server main function.
 	for(i = 0;i < 20; i++){
 //		if(p[i].name == NULL){
 //			continue;
 //		}
-		printf("Account name: %s \n", p[i].name);
-		printf("Balance: %f \n", p[i].balance);
+		write( 1, message, sprintf( message, "\x1b[2;33mAccount name: %s ...\x1b[0m\n", p[i].name ) );
+		write( 1, message, sprintf( message, "\x1b[2;33mBalance: %f ...\x1b[0m\n", p[i].balance ) );
+//		printf("Account name: %s \n", p[i].name);
+//		printf("Balance: %f \n", p[i].balance);
 		if(p[i].session){
-			printf("In session: Yes\n");
+			write( 1, message, sprintf( message, "\x1b[2;33m In session: Yes  \x1b[0m\n", p[i].balance ) );
+			//printf("In session: Yes\n");
 		}
 		else{
-			printf("In session: No\n");
+			write( 1, message, sprintf( message, "\x1b[2;33m In session: No  \x1b[0m\n", p[i].balance ) );
+			//printf("In session: No\n");
 		}
 	}
 }
