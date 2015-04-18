@@ -105,6 +105,7 @@ main( int argc, char ** argv )
 	int			len;
 	float 			munni;
 	int 			i;
+	char			line[1024];
 	
 	char *func = "client main";
 
@@ -153,7 +154,10 @@ main( int argc, char ** argv )
 			printf("Enter command:\t\n");
 			//Ordered in this fashion because there are expected to be more withdraws and deposits
 			//Than send and receives... Just a guess though. Shouldn't affect efficiency terribly.
-			if(scanf(" %sm %f",command, &munni)==2){
+
+			while (fgets(line, sizeof(line), stdin) != NULL)) {
+
+			if(sscanf(line," %sm %f",command, &munni)==2){
 				//withdraws and deposits
 				len = strlen(command);
 				if(len > 8){
@@ -178,7 +182,7 @@ main( int argc, char ** argv )
 				}
 			}
 			
-			else if(scanf(" %sm %100s", command, account) == 2){
+			else if(sscanf(line," %sm %100s", command, account) == 2){
 				//Create, serve
 				len = strlen(command);
 				if(len > 6){
@@ -204,7 +208,7 @@ main( int argc, char ** argv )
 				}
 			}
 			
-			else if(scanf(" %sm", command) == 1){
+			else if(sscanf(line," %sm", command) == 1){
 				//query, end, quit
 				len = strlen(command);
 				if(len > 5){
