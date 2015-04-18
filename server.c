@@ -159,8 +159,6 @@ void client_session(int sd){
 	while(deathflag == 1){
 		curr = 0;
 		size = 0;
-		fflush(stdout);
-		memset(request,0,256);
 		line[0] = '\0';
 		/*
 		while((size = recv(sd,request,sizeof(request),0)) > 0){
@@ -381,6 +379,7 @@ void client_session(int sd){
 
 		else{
 			printf("Please enter a valid command, in all lowercase. ");
+			break;
 		}
 	}
 
