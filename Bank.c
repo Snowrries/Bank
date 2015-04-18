@@ -35,7 +35,7 @@ struct account create(account_t *acc,char* name){
 	printf("End of create function.\n");
 
 //	pthread_mutex_lock(&newAccount);
-	memcpy(acc->name, name, strlen(name)+1);
+	strncpy(acc->name, name, strlen(name)+1);
 	acc->balance = 0;
 	acc->session = 0;
 	pthread_mutex_unlock(&newAccount);
