@@ -68,6 +68,7 @@ void *serverscout(void *sdx){
 		}
 		else if(status == 0){
 			printf("Lost connection.");
+			return NULL;
 		}
 		else{
 			perror("recv");
