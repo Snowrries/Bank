@@ -184,8 +184,8 @@ void client_session(int sd){
 
 		printf("%s\n",line);
 
-		if(sscanf(request,"%9s %f\n",command, &munni)==2){
-			printf("word %s, %f \n", command, munni);
+		if(sscanf(request,"%9s %g\n",command, &munni)==2){
+			printf("word %s, %g \n", command, munni);
 			if(insesh == 0){
 				//Send something like 'you must be in a session to use this operation.'
 				if(send(sd, "You must be in a session to withdraw or deposit.", 48 , 0) == -1){
