@@ -55,10 +55,10 @@ void periodic_printing(){
 		printf("Account name: %s \n", p[i].name);
 		printf("Balance: %f \n", p[i].balance);
 		if(p[i].session){
-			printf("In session: Yes");
+			printf("In session: Yes\n");
 		}
 		else{
-			printf("In session: No");
+			printf("In session: No\n");
 		}
 	}
 }
