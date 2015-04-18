@@ -186,7 +186,7 @@ void client_session(int sd){
 		//Create or serve
 		}
 */
-		if(recv(sd,line, sizeof(line),0)<-1){
+		if(recv(sd,line, sizeof(line),0)<1){
 			perror("recv failed");
 			exit(0);
 		}
