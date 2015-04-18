@@ -8,7 +8,7 @@ int shmid;
 int sd;
 sem_t actionCycleSemaphore;
 //static pthread_attr_t	user_attr;
-static pthread_attr_t	kernel_attr;
+//static pthread_attr_t	kernel_attr;
 sem_t *reado;
 sem_t *writeo;
 sem_t *welcome;
