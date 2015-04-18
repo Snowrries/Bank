@@ -157,7 +157,7 @@ main( int argc, char ** argv )
 
 			fgets(line, sizeof(line), stdin);
 
-			if(sscanf(line,"%sm %f",command, &munni)==2){
+			if(sscanf(line,"%s %f",&command, &munni)==2){
 				//withdraws and deposits
 				len = strlen(command);
 				if(len > 8){
@@ -182,7 +182,7 @@ main( int argc, char ** argv )
 				}
 			}
 			
-			else if(sscanf(line,"%sm %100s", command, account) == 2){
+			else if(sscanf(line,"%s %100s", &command, account) == 2){
 				//Create, serve
 				len = strlen(command);
 				if(len > 6){
@@ -208,7 +208,7 @@ main( int argc, char ** argv )
 				}
 			}
 			
-			else if(sscanf(line,"%sm", command) == 1){
+			else if(sscanf(line,"%s", &command) == 1){
 				//query, end, quit
 				len = strlen(command);
 				if(len > 5){
