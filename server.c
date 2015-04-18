@@ -459,8 +459,8 @@ void sharingcaring(){
 int main(){
 
 	pid_t pid;
-	char *func = "server main";
-	pthread_t		tid;
+//	char *func = "server main";
+//	pthread_t		tid;
 	struct sigaction memclean;
 	if((reado = sem_open("reado",O_CREAT,0640,20)) == SEM_FAILED){
 			printf("Read semaphore init fail.");
