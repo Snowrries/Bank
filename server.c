@@ -429,10 +429,10 @@ int socks(const char* port){
 void sharingcaring(){
 	/* Shared Memory Section*/
 
-	int shmid;
+//	int shmid;
 	int i;
 	account_t* temp ;
-	key_t key;
+//	key_t key;
 
 	int size;
 	size = 20 * sizeof(account_t); // 20 accounts
