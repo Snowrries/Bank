@@ -129,7 +129,7 @@ void client_session(int sd){
 	char account[101];
 	char request[256];
 	char line[1024];
-	char *temp;
+//	char *temp;
 	int i;
 	int curr,size;
 	int insesh;
@@ -492,7 +492,7 @@ void sharingcaring(){
 
 //	int shmid;
 	int i;
-//	account_t* temp ;
+	account_t* temp ;
 //	key_t key;
 
 	int size;
