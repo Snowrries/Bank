@@ -134,6 +134,7 @@ void client_session(int sd){
 	account_t *act;
 	struct sigaction end;
 	insesh  = 0;
+
 	sem_t *reado;
 	sem_t *writeo;
 	sem_t *welcome;
@@ -152,21 +153,32 @@ void client_session(int sd){
 		size = 0;
 		fflush(stdout);
 		memset(request,0,256);
+		line[0] = '\0';
+		/*
 		while((size = recv(sd,request,sizeof(request),0)) > 0){
 					curr += size;
+					printf("%d\n",curr);
 					if(curr > 1024){
 						temp = "Overflow input. Please enter another command.";
 						write( sd, temp, strlen(temp) + 1 );
 						continue;
 					}
-		strncpy(line[size], request, size);
+					printf("strn\n");
+					strncat(line, request, size);
+					line[curr + 1] = '\0';
+					printf("%s\n",line);
 
 		//Create or serve
 		}
-		printf("%s",line);
-		fflush(stdout);
+*/
+		if(recv(sd,line, sizeof(line),0)<-1){
+			perror("recv failed");
 
-		if(sscanf(request,"%7s %101s", command, account) == 2){
+		}
+		printf("%s\n",line);
+
+
+		if(sscanf(line,"%7s %101s", command, account) == 2){
 
 			fflush(stdout);
 			if(insesh == 1){
