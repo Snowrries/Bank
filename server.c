@@ -185,7 +185,7 @@ void client_session(int sd){
 		printf("%s\n",line);
 
 		if(sscanf(request,"%9s %f\n",command, &munni)==2){
-
+			printf("%s, %f \n", command, munni);
 			if(insesh == 0){
 				//Send something like 'you must be in a session to use this operation.'
 				if(send(sd, "You must be in a session to withdraw or deposit.", 48 , 0) == -1){
@@ -239,6 +239,7 @@ void client_session(int sd){
 		}
 		
 		else if(sscanf(line,"%7s %101s", command, account) == 2){
+			printf("%s, %f\n", command, account);
 			if(insesh == 1){
 				//Send something like 'you're already being served.
 				if(send(sd, "Active customer session: cannot create or serve new account.", 60 , 0) == -1){
@@ -308,6 +309,7 @@ void client_session(int sd){
 		//query, end, quit
 		
 		else if(sscanf(request,"%6s\n", command) == 1){
+			printf("%s\n", command);
 			if(insesh == 0){
 				if((strcmp(command,"query")==0)||(strcmp(command,"end")==0))
 				//Send something like 'you must be in a session to use this operation.'
