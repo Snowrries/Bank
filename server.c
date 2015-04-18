@@ -206,6 +206,7 @@ void client_session(int sd){
 					if(p[i].name == NULL){//We need to init all SHM to 0
 						printf("Account Made\n");
 						create(&p[i],account);
+						printf("%s/n", p[i].name);
 						//sem_post(writeo);
 						//sem_post(reado);
 						break;
