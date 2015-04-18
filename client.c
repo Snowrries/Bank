@@ -30,6 +30,7 @@ connect_to_server( const char * server, const char * port )
 	struct addrinfo		addrinfo;
 	struct addrinfo *	result;
 	char			message[256];
+	struct sigaction end;
 
 	addrinfo.ai_flags = 0;
 	addrinfo.ai_family = AF_INET;		// IPv4 only
@@ -39,6 +40,12 @@ connect_to_server( const char * server, const char * port )
 	addrinfo.ai_addr = NULL;
 	addrinfo.ai_canonname = NULL;
 	addrinfo.ai_next = NULL;
+
+	end.sa_flags = 0;
+	end.sa_sigaction = child_cleaning;
+	sigemptyset (&end.sa_mask);
+	sigaddset (&end.sa_mask, SIGINT);
+	sigaction(SIGINT, &end, NULL);
 	if ( getaddrinfo( server, port, &addrinfo, &result ) != 0 )
 	{
 		fprintf( stderr, "\x1b[1;31mgetaddrinfo( %s ) failed.  File %s line %d.\x1b[0m\n", server, __FILE__, __LINE__ );
@@ -253,7 +260,7 @@ main( int argc, char ** argv )
 			}
 			
 		}
-		command = "quit";
+		strcpy(command ,"quit");
 		reliablemail(sd,command,5);
 		close( sd );
 		return 0;
