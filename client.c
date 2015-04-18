@@ -57,9 +57,10 @@ connect_to_server( const char * server, const char * port )
 		return -1;
 	}
 }
-void serverscout(int sd){
+void serverscout(void *sdx){
 	char buffer[124];
 	int status;
+	int sd = *(int)sdx;
 	while(1){
 		if((status = recv(sd, buffer, 100, 0)) > 0){
 			//print buffer in some thread safe manner. 
@@ -130,7 +131,7 @@ main( int argc, char ** argv )
 		printf( "pthread_attr_setscope() failed in %s() line %d\n", func, __LINE__ );
 		return 0;
 	}
-	else if ( pthread_create( &tid, &kernel_attr, serverscout, sd ) != 0 )
+	else if ( pthread_create( &tid, &kernel_attr, &serverscout, sd ) != 0 )
 	{
 		printf( "pthread_create() failed in %s()\n", func );
 		return 0;
