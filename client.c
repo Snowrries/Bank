@@ -13,7 +13,7 @@
 #include	<string.h>
 #include	<sys/socket.h>
 #include	<netdb.h>
-#include	<ctypes.h>
+#include	<ctype.h>
 
 
 int
