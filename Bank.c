@@ -32,7 +32,7 @@ struct account create(account_t *acc,char* name){
 	}
 
 //	pthread_mutex_lock(&newAccount);
-	acc->name = name;
+	memcpy(acc->name, name, strlen(name));
 	acc->balance = 0;
 	acc->session = 0;
 	pthread_mutex_unlock(&newAccount);
