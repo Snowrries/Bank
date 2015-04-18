@@ -22,6 +22,8 @@ int serve(account_t *acc){
 
 struct account create(account_t *acc,char* name){
 	int error;
+	
+	printf("Beginning of create function.\n");
 	if((error = pthread_mutex_trylock(&newAccount)) == EBUSY){
 		printf("Account is already in use\n");
 		return *acc;
@@ -35,8 +37,8 @@ struct account create(account_t *acc,char* name){
 	memcpy(acc->name, name, strlen(name)+1);
 	acc->balance = 0;
 	acc->session = 0;
-	pthread_mutex_unlock(&newAccount);
 	printf("End of create function.\n");
+	pthread_mutex_unlock(&newAccount);
 	return *acc;
 }
 
