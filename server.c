@@ -37,7 +37,7 @@ void child_cleaning(int signale, siginfo_t *ignore, void *ignore2){
 void ChildSigHandler(int signale){
 	pid_t pid;
 	int status;
-	while( (pid = waitpid(-1,&status,WNOHANG)) == -1){
+	while( (pid = waitpid(-1,&status,WNOHANG)) > 0){
 		sleep(1);
 	}
 	printf("Child process killed; PID: %d\n", (int)pid );
@@ -144,9 +144,7 @@ void client_session(int sd){
 	while(deathflag == 1){
 		curr = 0;
 		size = 0;
-		if(deathflag == 1){
-			exit(0);
-		}
+
 		while((size = recv(sd,request,sizeof(request),0)) > 0){
 			curr += size;
 			if(curr > 2048){
@@ -349,7 +347,7 @@ int socks(const char* port){
 	struct sigaction action;
 
 	action.sa_handler = ChildSigHandler;
-	action.sa_flags = 0;
+	action.sa_flags = SA_RESTART | SA_NOCLDSTOP;
 	sigemptyset (&action.sa_mask);
 	sigaddset(&action.sa_mask,SIGCHLD);
 
