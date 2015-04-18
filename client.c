@@ -120,7 +120,7 @@ main( int argc, char ** argv )
 			printf("Enter command:\t");
 			//Ordered in this fashion because there are expected to be more withdraws and deposits
 			//Than send and receives... Just a guess though. Shouldn't affect efficiency terribly.
-			if(scanf("%sm %d",command, &munni)==2){
+			if(scanf("%sm %f",command, &munni)==2){
 				//withdraws and deposits
 				len = strlen(command);
 				if(len > 8){
@@ -131,7 +131,7 @@ main( int argc, char ** argv )
 					command[i] = (char)tolower(command[i]);
 				}
 				if((strcmp(command, "withdraw") == 0) || (strcmp(command, "deposit") == 0)){
-					if(sprintf(buffer, "%s %f", command, &munni) < 0){
+					if(sprintf(buffer, "%s %f", command, munni) < 0){
 						printf("Invalid input...");
 						continue;
 					}
