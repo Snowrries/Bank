@@ -50,7 +50,7 @@ void periodic_printing(){
 	char message[256];
 	//Print account info every 20 seconds. Raise a signal in Server main function.
 	for(i = 0;i < 20; i++){
-		if((p[i].name)[0] == NULL){
+		if((p[i].name)[0] == '\0'){
 			continue;
 		}
 		write( 1, message, sprintf( message, "\x1b[2;33mAccount name: %s ...\x1b[0m\n", p[i].name ) );
@@ -203,7 +203,7 @@ void client_session(int sd){
 			sem_wait(writeo);
 			if(strcmp(command, "create") == 0){
 				for(i = 0; i < 20; i++){
-					if((p[i].name)[0] == NULL){//We need to init all SHM to 0
+					if((p[i].name)[0] == '\0'){//We need to init all SHM to 0
 						printf("Account Made: %s\n",account);
 						create(&p[i],account);
 						printf("%s/n", p[i].name);
@@ -227,7 +227,7 @@ void client_session(int sd){
 
 			else if(strcmp(command, "serve") == 0){
 				for(i = 0; i < 20; i++){
-					if(((p[i].name)[0] != NULL) && (strcmp(p[i].name, account) == 0)){
+					if(((p[i].name)[0] != '\0') && (strcmp(p[i].name, account) == 0)){
 						serve(act = &p[i]);
 						break;//I hope this exits the loop
 					}
