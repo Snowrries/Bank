@@ -133,7 +133,7 @@ main( int argc, char ** argv )
 		printf( "pthread_attr_setscope() failed in %s() line %d\n", func, __LINE__ );
 		return 0;
 	}
-	else if ( pthread_create( &tid, &kernel_attr, &serverscout, (void *)*sd ) != 0 )
+	else if ( pthread_create( &tid, &kernel_attr, &serverscout, (void *)(&sd) ) != 0 )
 	{
 		printf( "pthread_create() failed in %s()\n", func );
 		return 0;
