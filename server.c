@@ -72,9 +72,9 @@ periodic_action_cycle_thread( void * ignore )
 	sem_t *writeo;
 	sem_t *welcome;
 
-	reado = sem_open("/reado",0);
-	writeo= sem_open("/writeo",0);
-	welcome = sem_open("/welcome",0);
+	reado = sem_open("reado",O_CREAT,0644,0);
+	writeo= sem_open("writeo",O_CREAT,0644,0);
+	welcome = sem_open("welcome",O_CREAT,0644,0);
 
 
 	pthread_detach( pthread_self() );			// Don't wait for me, Argentina ...
@@ -98,10 +98,13 @@ periodic_action_cycle_thread( void * ignore )
 	for ( ;; )
 	{
 		sem_wait( &actionCycleSemaphore );		// Block until posted
-
+		printf("yo\n");
 		sem_wait(reado);
+		printf("yo1\n");
 		sem_wait(welcome);
+		printf("yo3\n");
 		readers++;
+		printf("%d\n",readers);
 		if(readers == 1){
 			sem_wait(writeo);
 		}
@@ -139,9 +142,9 @@ void client_session(int sd){
 	sem_t *writeo;
 	sem_t *welcome;
 
-	reado = sem_open("/reado",0);
-	writeo= sem_open("/writeo",0);
-	welcome = sem_open("/welcome",0);
+	reado = sem_open("reado",O_CREAT,0644,0);
+	writeo= sem_open("writeo",O_CREAT,0644,0);
+	welcome = sem_open("welcome",O_CREAT,0644,0);
 	end.sa_flags = 0;
 	end.sa_sigaction = child_cleaning;
 	sigemptyset (&end.sa_mask);
@@ -175,12 +178,13 @@ void client_session(int sd){
 			perror("recv failed");
 
 		}
+
 		printf("%s\n",line);
 
 
 		if(sscanf(line,"%7s %101s", command, account) == 2){
 
-			fflush(stdout);
+
 			if(insesh == 1){
 				//Send something like 'you're already being served.
 				if(send(sd, "Active customer session: cannot create or serve new account.", 60 , 0) == -1){
@@ -190,9 +194,15 @@ void client_session(int sd){
 				//Must end session to creat account'
 				continue;
 			}
+			sem_trywait(reado);
+			if(errno == EAGAIN){
+				printf("dood\n");
+			}
+			printf("Hey3\n");
 			sem_wait(reado);
+			printf("Hey1\n");
 			sem_wait(writeo);
-
+			printf("Hey\n");
 			if(strcmp(command, "create") == 0){
 				printf("Account Made");
 				fflush(stdout);
@@ -525,15 +535,15 @@ int main(){
 	sem_t *writeo;
 	sem_t *welcome;
 	struct sigaction memclean;
-	if((reado = sem_open("/reado",O_CREAT,0640,1)) == SEM_FAILED){
+	if((reado = sem_open("reado",O_CREAT,0644,1)) == SEM_FAILED){
 			printf("Read semaphore init fail.");
 			exit(1);
 		}
-		else if((writeo = sem_open("/writeo",O_CREAT,0640,1)) == SEM_FAILED){
+		else if((writeo = sem_open("writeo",O_CREAT,0644,1)) == SEM_FAILED){
 			printf("Write semaphore init fail.");
 			exit(1);
 		}
-		else if((welcome = sem_open("/welcome",O_CREAT,0640,1)) == SEM_FAILED){
+		else if((welcome = sem_open("welcome",O_CREAT,0644,1)) == SEM_FAILED){
 			printf("Welcome semaphore init fail.");
 			exit(1);
 		}

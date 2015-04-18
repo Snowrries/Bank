@@ -19,7 +19,6 @@
 #include <errno.h>
 #include <signal.h>
 #include <pthread.h>
-#include "session.h"
 #include "Bank.h"
 
 #define CLIENT_PORT 54261
