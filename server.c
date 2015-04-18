@@ -390,6 +390,7 @@ int socks(const char* port){
 			perror("Sigaction failed");
 			return 1;
 		}
+		
 		while((sporkd = accept(sd,(struct sockaddr *)&them, &addrlen)) != -1){
 			addrlen = sizeof(struct sockaddr_storage);
 
@@ -410,6 +411,7 @@ int socks(const char* port){
 			else//Is parent process
 			{
 				printf("Created child process %d\n", pid);
+				close(sporkd);
 
 			}
 		}
