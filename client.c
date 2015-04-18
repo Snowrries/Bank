@@ -88,7 +88,7 @@ main( int argc, char ** argv )
 	char			message[256];
 	char			buffer[512];
 	char			account[101];
-	char			*command;
+	char			command;
 	int			len;
 	int 			munni;
 	int 			i;
@@ -131,7 +131,7 @@ main( int argc, char ** argv )
 					command[i] = (char)tolower(command[i]);
 				}
 				if((strcmp(command, "withdraw") == 0) || (strcmp(command, "deposit") == 0)){
-					if((buffer = sprintf("%s %f", command, munni)) < 0){
+					if((buffer = sprintf("%s %f", &command, &munni)) < 0){
 						printf("Invalid input...");
 						continue;
 					}
@@ -156,7 +156,7 @@ main( int argc, char ** argv )
 					command[i] = (char)tolower(command[i]);
 				}
 				if((strcmp(command, "create") == 0) || (strcmp(command, "serve") == 0)){
-					if((buffer = sprintf("%s %s", command, account)) < 0){
+					if((buffer = sprintf("%s %s", &command, &account)) < 0){
 						printf("Invalid input...");
 						continue;
 					}
