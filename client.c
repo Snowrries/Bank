@@ -101,7 +101,7 @@ main( int argc, char ** argv )
 	char			message[256];
 	char			buffer[512];
 	char			account[101];
-	char			*command = NULL;
+//	char			*command = NULL;
 	int			len;
 	float 			munni;
 	int 			i;
@@ -150,6 +150,7 @@ main( int argc, char ** argv )
 		printf("Please do not withdraw or deposit negative numbers. We do not deal in anti-currency.\n");
 		while ( 1 )
 		{
+			char command[1024];
 			sleep(3);
 			printf("Enter command:\t\n");
 			//Ordered in this fashion because there are expected to be more withdraws and deposits
@@ -157,7 +158,7 @@ main( int argc, char ** argv )
 
 			fgets(line, sizeof(line), stdin);
 
-			if(sscanf(line,"%s %f",command, &munni)==2){
+			if(sscanf(line,"%s %f\n",command, &munni)==2){
 				//withdraws and deposits
 				len = strlen(command);
 				if(len > 8){
@@ -182,7 +183,7 @@ main( int argc, char ** argv )
 				}
 			}
 			
-			else if(sscanf(line,"%s %100s", command, account) == 2){
+			else if(sscanf(line,"%s %s\n", command, account) == 2){
 				//Create, serve
 				len = strlen(command);
 				if(len > 6){
@@ -208,7 +209,7 @@ main( int argc, char ** argv )
 				}
 			}
 			
-			else if(sscanf(line,"%s", command) == 1){
+			else if(sscanf(line,"%s\n", command) == 1){
 				//query, end, quit
 				len = strlen(command);
 				if(len > 5){
