@@ -181,7 +181,7 @@ main( int argc, char ** argv )
 					command[i] = (char)tolower(command[i]);
 				}
 				if((strcmp(command, "withdraw") == 0) || (strcmp(command, "deposit") == 0)){
-					if(sprintf(buffer, "%s %f", command, munni) < 0){
+					if(sprintf(buffer, "%s %g", command, munni) < 0){
 						printf("Invalid input...\n");
 						continue;
 					}
