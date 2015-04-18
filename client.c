@@ -60,7 +60,7 @@ connect_to_server( const char * server, const char * port )
 void serverscout(void *sdx){
 	char buffer[124];
 	int status;
-	int sd = *(int)sdx;
+	int sd = (int)(*sdx);
 	while(1){
 		if((status = recv(sd, buffer, 100, 0)) > 0){
 			//print buffer in some thread safe manner. 
