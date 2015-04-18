@@ -125,8 +125,8 @@ void client_session(int sd){
 	char command[9];
 	char account[101];
 	char request[256];
-	//char line[1024];
-	//char *temp;
+	char line[1024];
+	char *temp;
 	int i;
 	int curr,size;
 	int insesh;
@@ -152,12 +152,19 @@ void client_session(int sd){
 		size = 0;
 		fflush(stdout);
 		memset(request,0,256);
-		while((size = recv(sd,request,sizeof(request),0)) < 0){
+		while((size = recv(sd,request,sizeof(request),0)) > 0){
+					curr += size;
+					if(curr > 1024){
+						temp = "Overflow input. Please enter another command.";
+						write( sd, temp, strlen(temp) + 1 );
+						continue;
+					}
+		strncpy(line[size], request, size);
 
-		}
-		printf("%s",request);
-		fflush(stdout);
 		//Create or serve
+		}
+		printf("%s",line);
+		fflush(stdout);
 
 		if(sscanf(request,"%7s %101s", command, account) == 2){
 
@@ -362,6 +369,7 @@ void client_session(int sd){
 	close(sd);
 	printf("Exiting Child");
 
+
 }
 int socks(const char* port){
 	int sd;
@@ -560,4 +568,5 @@ int main(){
 	sem_close(welcome);
 
 	return 0;
-}
+	}
+
