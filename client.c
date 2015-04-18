@@ -144,8 +144,8 @@ main( int argc, char ** argv )
 		printf( "Connected to server %s\n", argv[1] );
 		printf("Available commands:\n create accountname\n serve accountname\n");
 		printf("deposit amount\n withdraw amount\n query\n end\n quit\n");
-		printf("Account names may only be up to 100 characters long. We'll truncate for you if it's too long. ");
-		printf("Please do not withdraw or deposit negative numbers. We do not deal in anti-currency.");
+		printf("Account names may only be up to 100 characters long. We'll truncate for you if it's too long. \n");
+		printf("Please do not withdraw or deposit negative numbers. We do not deal in anti-currency.\n");
 		while ( 1 )
 		{
 			printf("Enter command:\t\n");
