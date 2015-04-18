@@ -12,7 +12,16 @@
 #include	<netdb.h>
 #include	<ctype.h>
 
+
+
+sig_atomic_t clientend = 1;
+
 static pthread_attr_t	kernel_attr;
+
+void EndClient(int sig){
+	clientend = 0;
+}
+
 int
 connect_to_server( const char * server, const char * port )
 {
@@ -151,7 +160,7 @@ main( int argc, char ** argv )
 		printf("deposit amount\n withdraw amount\n query\n end\n quit\n");
 		printf("Account names may only be up to 100 characters long. We'll truncate for you if it's too long. \n");
 		printf("Please do not withdraw or deposit negative numbers. We do not deal in anti-currency.\n");
-		while ( 1 )
+		while ( clientend )
 		{
 			command[0] = '\0';
 			sleep(3);
@@ -162,7 +171,6 @@ main( int argc, char ** argv )
 			fgets(line, sizeof(line), stdin);
 
 			if(sscanf(line,"%9s %f\n",command, &munni)==2){
-				printf("read as float? %s %f", command, munni);
 				//withdraws and deposits
 				len = strlen(command);
 				if(len > 8){
@@ -173,7 +181,7 @@ main( int argc, char ** argv )
 					command[i] = (char)tolower(command[i]);
 				}
 				if((strcmp(command, "withdraw") == 0) || (strcmp(command, "deposit") == 0)){
-					if(sprintf(buffer, "%s %g", command, munni) < 0){
+					if(sprintf(buffer, "%s %f", command, munni) < 0){
 						printf("Invalid input...\n");
 						continue;
 					}
@@ -188,7 +196,6 @@ main( int argc, char ** argv )
 			}
 			
 			else if(sscanf(line,"%7s %101s\n", command, account) == 2){
-				printf("read as string? %s %s", command, account);
 				//Create, serve
 				if(strlen(account) == 101){
 					printf("Account name too long.\n");
@@ -220,7 +227,6 @@ main( int argc, char ** argv )
 			
 			else if(sscanf(line,"%6s\n", command) == 1){
 				//query, end, quit
-				printf("read as command? %s", command);
 				len = strlen(command);
 				if(len > 5){
 					printf("Invalid command.\n");
@@ -246,6 +252,8 @@ main( int argc, char ** argv )
 			}
 			
 		}
+		command = "quit";
+		reliablemail(sd,command,5);
 		close( sd );
 		return 0;
 	}
