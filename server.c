@@ -125,12 +125,12 @@ void client_session(int sd){
 	char command[9];
 	char account[101];
 	char request[256];
-	char line[1024];
-	char *temp;
+	//char line[1024];
+	//char *temp;
 	int i;
 	int curr,size;
 	int insesh;
-	int munni;
+	float munni;
 	account_t *act;
 	struct sigaction end;
 	insesh  = 0;
