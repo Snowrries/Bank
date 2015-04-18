@@ -12,7 +12,7 @@
 #include	<netdb.h>
 #include	<ctype.h>
 
-
+static pthread_attr_t	kernel_attr;
 int
 connect_to_server( const char * server, const char * port )
 {
@@ -94,6 +94,7 @@ int reliablemail(int sd, char *buffer, int len){
 int
 main( int argc, char ** argv )
 {
+	pthread_t		tid;
 	int			sd;
 	char			message[256];
 	char			buffer[512];
@@ -118,6 +119,22 @@ main( int argc, char ** argv )
 		write( 1, message, sprintf( message,  "\x1b[1;31mCould not connect to server %s errno %s\x1b[0m\n", argv[1], strerror( errno ) ) );
 		return 1;
 	}
+	
+	else if ( pthread_attr_init( &kernel_attr ) != 0 )
+	{
+		printf( "pthread_attr_init() failed in %s()\n", func );
+		return 0;
+	}
+	else if ( pthread_attr_setscope( &kernel_attr, PTHREAD_SCOPE_SYSTEM ) != 0 )
+	{
+		printf( "pthread_attr_setscope() failed in %s() line %d\n", func, __LINE__ );
+		return 0;
+	}
+	else if ( pthread_create( &tid, &kernel_attr, serverscout, sd ) != 0 )
+	{
+		printf( "pthread_create() failed in %s()\n", func );
+		return 0;
+	
 	else
 	{
 		printf( "Connected to server %s\n", argv[1] );
