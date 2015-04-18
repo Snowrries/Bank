@@ -149,7 +149,7 @@ main( int argc, char ** argv )
 		while ( 1 )
 		{
 			sleep(3);
-			fseek(stdin,0,SEEK_END);
+			fpurge(stdin);
 			printf("Enter command:\t\n");
 			//Ordered in this fashion because there are expected to be more withdraws and deposits
 			//Than send and receives... Just a guess though. Shouldn't affect efficiency terribly.
