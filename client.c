@@ -67,8 +67,8 @@ void *serverscout(void *sdx){
 			printf("%s", buffer);
 		}
 		else if(status == 0){
-			printf("Lost connection.");
-			return NULL;
+			printf("Lost connection.\n");
+			exit(1);
 		}
 		else{
 			perror("recv");
@@ -116,7 +116,7 @@ main( int argc, char ** argv )
 		exit( 1 );
 	}
 	else if( argc > 2){
-		printf("Too many arguments. Please input just a host name.");
+		printf("Too many arguments. Please input just a host name.\n");
 		exit(1);
 	}
 	else if ( (sd = connect_to_server( argv[1], "54261" )) == -1 )
@@ -170,7 +170,7 @@ main( int argc, char ** argv )
 				}
 				if((strcmp(command, "withdraw") == 0) || (strcmp(command, "deposit") == 0)){
 					if(sprintf(buffer, "%s %f", command, munni) < 0){
-						printf("Invalid input...");
+						printf("Invalid input...\n");
 						continue;
 					}
 					if(reliablemail(sd, buffer, strlen(buffer)) == -1){
@@ -178,7 +178,7 @@ main( int argc, char ** argv )
 					};//Hopefully munni is a valid float.
 				}
 				else{
-					printf("Invalid command.");
+					printf("Invalid command.\n");
 					continue;
 				}
 			}
@@ -195,7 +195,7 @@ main( int argc, char ** argv )
 				}
 				if((strcmp(command, "create") == 0) || (strcmp(command, "serve") == 0)){
 					if(sprintf(buffer, "%s %s", command, account) < 0){
-						printf("Invalid input...");
+						printf("Invalid input...\n");
 						continue;
 					}
 					if(reliablemail(sd, buffer, strlen(buffer)) == -1){
@@ -204,7 +204,7 @@ main( int argc, char ** argv )
 					//Just maybe not in one piece...
 				}
 				else{
-					printf("Invalid command.");
+					printf("Invalid command.\n");
 					continue;
 				}
 			}
