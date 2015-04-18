@@ -16,6 +16,7 @@
 #include <sys/socket.h>
 #include <errno.h>
 #include <signal.h>
+#include <pthread.h>
 #include "session.h"
 #include "Bank.h"
 
