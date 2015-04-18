@@ -129,7 +129,7 @@ void client_session(int sd){
 	char account[101];
 	char request[256];
 	char line[1024];
-//	char *temp;
+	char *temp;
 	int i;
 	int curr,size;
 	int insesh;
@@ -194,15 +194,15 @@ void client_session(int sd){
 				//Must end session to creat account'
 				continue;
 			}
-			sem_trywait(reado);
-			if(errno == EAGAIN){
-				printf("dood\n");
-			}
 			printf("Hey3\n");
 			sem_wait(reado);
 			printf("Hey1\n");
-			sem_wait(writeo);
+			sem_wait(welcome);
 			printf("Hey\n");
+			sem_wait(writeo);
+
+
+
 			if(strcmp(command, "create") == 0){
 				printf("Account Made");
 				fflush(stdout);
@@ -535,18 +535,21 @@ int main(){
 	sem_t *writeo;
 	sem_t *welcome;
 	struct sigaction memclean;
-	if((reado = sem_open("reado",O_CREAT,0644,1)) == SEM_FAILED){
+	if((reado = sem_open("reado",O_CREAT,0644,0)) == SEM_FAILED){
 			printf("Read semaphore init fail.");
 			exit(1);
 		}
-		else if((writeo = sem_open("writeo",O_CREAT,0644,1)) == SEM_FAILED){
+		else if((writeo = sem_open("writeo",O_CREAT,0644,0)) == SEM_FAILED){
 			printf("Write semaphore init fail.");
 			exit(1);
 		}
-		else if((welcome = sem_open("welcome",O_CREAT,0644,1)) == SEM_FAILED){
+		else if((welcome = sem_open("welcome",O_CREAT,0644,0)) == SEM_FAILED){
 			printf("Welcome semaphore init fail.");
 			exit(1);
 		}
+	sem_post(reado);
+	sem_post(writeo);
+	sem_post(welcome);
 	readers = 0;
 	//Semaphores at ready. No one reading.
 
@@ -583,7 +586,7 @@ int main(){
 	}
 
 	//Server-Client Service
-	socks("54965");
+	socks("54261");
 
 	sem_close(reado);
 	sem_close(writeo);
