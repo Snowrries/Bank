@@ -176,7 +176,7 @@ void client_session(int sd){
 */
 		if(recv(sd,line, sizeof(line),0)<-1){
 			perror("recv failed");
-
+			exit(0);
 		}
 
 		printf("%s\n",line);
