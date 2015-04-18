@@ -134,7 +134,7 @@ void client_session(int sd){
 	char account[101];
 	char request[256];
 	char line[1024];
-//	char *temp;
+	char *temp;
 	int i;
 	int curr,size;
 	int insesh;
@@ -185,7 +185,8 @@ void client_session(int sd){
 				}	
 				continue;
 			}	
-			munni = strtod(account);
+			temp = "strtod error";
+			munni = strtod(account, &temp);
 			printf("word %s, %f \n", command, munni);
 			sem_wait(reado);
 			sem_wait(welcome);
