@@ -13,7 +13,7 @@ sem_t *writeo;
 sem_t *welcome;
 
 
-void organized_cleaning(int signale){
+void organized_cleaning(int signale, siginfo_t *ignore, void *ignore2){
 
 	/*Note: shmid is a global var. Further, sigint is blocked while shared memory is being created, 
 	so shmid is guaranteed to be a pointer to a valid block of shared memory*/
@@ -21,9 +21,10 @@ void organized_cleaning(int signale){
 	sem_destroy(writeo);
 	sem_destroy(welcome);
 	close(sd);
+	exit(EXIT_SUCCESS);
 }
 
-void ChildSigHandler(int signale){
+void ChildSigHandler(int signale, siginfo_t *ignore, void *ignore2){
 	pid_t pid;
 	int status;
 	while( (pid = waitpid(-1,&status,WNOHANG)) == -1){
