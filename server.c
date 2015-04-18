@@ -286,7 +286,7 @@ void client_session(int sd){
 			
 			if(strcmp(command, "query") == 0){
 				
-				sprintf(line,"%f",acc->balance);
+				sprintf(line,"%f",act->balance);
 				if(send(sd, line, strlen(line), 0) == -1){
 					perror("send");
 				}
@@ -295,7 +295,7 @@ void client_session(int sd){
 			else if(strcmp(command, "end") == 0){
 				//Consider error checking this
 				insesh = 0;
-				pthread_mutex_unlock(&(acc->lock));
+				pthread_mutex_unlock(&(act->lock));
 				if(send(sd,"Client session ended. You may now create another account, or be served.", 71, 0) == -1){
 					perror("send");
 				}
@@ -303,7 +303,7 @@ void client_session(int sd){
 			//quit
 			else if(strcmp(command, "quit") == 0){
 				if(insesh == 1){
-					pthread_mutex_unlock(&(acc->lock));
+					pthread_mutex_unlock(&(act->lock));
 					if(send(sd,"Client session ended. Goodbye.", 30 , 0) == -1){
 						perror("send");
 					}
