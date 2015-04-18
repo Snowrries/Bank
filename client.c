@@ -155,7 +155,7 @@ main( int argc, char ** argv )
 			//Ordered in this fashion because there are expected to be more withdraws and deposits
 			//Than send and receives... Just a guess though. Shouldn't affect efficiency terribly.
 
-			while (fgets(line, sizeof(line), stdin) != NULL)) {
+			fgets(line, sizeof(line), stdin);
 
 			if(sscanf(line," %sm %f",command, &munni)==2){
 				//withdraws and deposits
