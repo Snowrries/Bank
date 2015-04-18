@@ -17,6 +17,6 @@ int reliablemail(int sd, char* buf, int len);
 
 int connect_to_server( const char * server, const char * port );
 
-int serverscout();
+int serverscout(void *arg);
 
 #endif //client.h
