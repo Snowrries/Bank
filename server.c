@@ -184,10 +184,61 @@ void client_session(int sd){
 
 		printf("%s\n",line);
 
+		if(sscanf(request,"%9s %f\n",command, &munni)==2){
 
-		if(sscanf(line,"%7s %101s", command, account) == 2){
+			if(insesh == 0){
+				//Send something like 'you must be in a session to use this operation.'
+				if(send(sd, "You must be in a session to withdraw or deposit.", 48 , 0) == -1){
+					perror("send");
+				}	
+				continue;
+			}	
+			//Deposit
+			
+			sem_wait(reado);
+			sem_wait(welcome);
+			readers++;
+			if(readers == 1){//If first reader, lock write.
+				sem_wait(writeo);
+			}
+			sem_post(welcome);
+			sem_post(reado);
+			//Try scanfing a number. truncate to the size of a float,
+			//error check if string was greater
+			//call the deposit,
+			
+			if(strcmp(command, "deposit") == 0){
+				deposit(act, munni);
+				if(send(sd, "Deposited funds.", 16 , 0) == -1){
+					perror("send");
+				}	
+			}
+			
+			//Withdraw
+			else if(strcmp(command, "withdraw") == 0){
+				withdraw(act, munni);
+				if(send(sd, "Withdrew funds. Thank you for your generous donation. ;)", 56 , 0) == -1){
+					perror("send");
+				}	
+			}
+			
+			else{
+				if(send(sd, "Unspecified error...", 20 , 0) == -1){
+					perror("send");
+				}	
+			}
+			sem_wait(welcome);
+			readers--;
+			if(readers == 0){//If last reader, unlock write.
+				sem_post(writeo);
+			}
+			sem_post(welcome);
 
 
+			//send new balance, or error if broken
+		}
+		
+		else if(sscanf(line,"%7s %101s", command, account) == 2){
 			if(insesh == 1){
 				//Send something like 'you're already being served.
 				if(send(sd, "Active customer session: cannot create or serve new account.", 60 , 0) == -1){
@@ -253,59 +304,7 @@ void client_session(int sd){
 				}
 			}
 		}
-		else if(sscanf(request,"%9s %f\n",command, &munni)==2){
 
-			if(insesh == 0){
-				//Send something like 'you must be in a session to use this operation.'
-				if(send(sd, "You must be in a session to withdraw or deposit.", 48 , 0) == -1){
-					perror("send");
-				}	
-				continue;
-			}	
-			//Deposit
-			
-			sem_wait(reado);
-			sem_wait(welcome);
-			readers++;
-			if(readers == 1){//If first reader, lock write.
-				sem_wait(writeo);
-			}
-			sem_post(welcome);
-			sem_post(reado);
-			//Try scanfing a number. truncate to the size of a float,
-			//error check if string was greater
-			//call the deposit,
-			
-			if(strcmp(command, "deposit") == 0){
-				deposit(act, munni);
-				if(send(sd, "Deposited funds.", 16 , 0) == -1){
-					perror("send");
-				}	
-			}
-			
-			//Withdraw
-			else if(strcmp(command, "withdraw") == 0){
-				withdraw(act, munni);
-				if(send(sd, "Withdrew funds. Thank you for your generous donation. ;)", 56 , 0) == -1){
-					perror("send");
-				}	
-			}
-			
-			else{
-				if(send(sd, "Unspecified error...", 20 , 0) == -1){
-					perror("send");
-				}	
-			}
-			sem_wait(welcome);
-			readers--;
-			if(readers == 0){//If last reader, unlock write.
-				sem_post(writeo);
-			}
-			sem_post(welcome);
-
-
-			//send new balance, or error if broken
-		}
 		//query, end, quit
 		
 		else if(sscanf(request,"%6s\n", command) == 1){
