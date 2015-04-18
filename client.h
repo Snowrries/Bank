@@ -8,11 +8,10 @@
 being serviced)
 */
 
-struct account{
-	char* name;
-	float balance;
-	int session;
-};
+
+
+void EndClient(int sig, siginfo_t *ignore, void *ignore2);
+
 int reliablemail(int sd, char* buf, int len);
 
 int connect_to_server( const char * server, const char * port );

@@ -19,7 +19,7 @@ sig_atomic_t clientend = 1;
 
 static pthread_attr_t	kernel_attr;
 
-void EndClient(int sig){
+void EndClient(int sig, siginfo_t *ignore, void *ignore2){
 	clientend = 0;
 }
 
