@@ -188,6 +188,7 @@ main( int argc, char ** argv )
 			}
 			
 			else if(sscanf(line,"%7s %101s\n", command, account) == 2){
+				printf("read as string? %s %s", command, account);
 				//Create, serve
 				if(strlen(account) == 101){
 					printf("Account name too long.\n");
@@ -219,6 +220,7 @@ main( int argc, char ** argv )
 			
 			else if(sscanf(line,"%6s\n", command) == 1){
 				//query, end, quit
+				printf("read as command? %s", command);
 				len = strlen(command);
 				if(len > 5){
 					printf("Invalid command.\n");
