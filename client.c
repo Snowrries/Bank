@@ -88,7 +88,7 @@ void *serverscout(void *sdx){
 		}
 		else{
 			perror("recv");
-		}
+		}printf("Bytes received: %d", status);
 	}
 }
 int reliablemail(int sd, char *buffer, int len){
