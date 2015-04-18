@@ -488,7 +488,7 @@ int main(){
 //	char *func = "server main";
 //	pthread_t		tid;
 	struct sigaction memclean;
-	if((reado = sem_open("reado",O_CREAT,0640,20)) == SEM_FAILED){
+	if((reado = sem_open("reado",O_CREAT,0640,1)) == SEM_FAILED){
 			printf("Read semaphore init fail.");
 			exit(1);
 		}
