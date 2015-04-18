@@ -21,6 +21,8 @@ void organized_cleaning(int signale, siginfo_t *ignore, void *ignore2){
 	sem_destroy(writeo);
 	sem_destroy(welcome);
 	close(sd);
+	shmctl(shmid, IPC_RMID, NULL);
+	shmdt(p);
 	exit(EXIT_SUCCESS);
 }
 
