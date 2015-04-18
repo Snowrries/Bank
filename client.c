@@ -157,7 +157,7 @@ main( int argc, char ** argv )
 
 			fgets(line, sizeof(line), stdin);
 
-			if(sscanf(line," %sm %f",command, &munni)==2){
+			if(sscanf(line,"%sm %f",command, &munni)==2){
 				//withdraws and deposits
 				len = strlen(command);
 				if(len > 8){
@@ -173,7 +173,7 @@ main( int argc, char ** argv )
 						continue;
 					}
 					if(reliablemail(sd, buffer, strlen(buffer)) == -1){
-						printf("Failed to send to server. Try again?");
+						printf("Failed to send to server. Try again?\n");
 					};//Hopefully munni is a valid float.
 				}
 				else{
@@ -182,7 +182,7 @@ main( int argc, char ** argv )
 				}
 			}
 			
-			else if(sscanf(line," %sm %100s", command, account) == 2){
+			else if(sscanf(line,"%sm %100s", command, account) == 2){
 				//Create, serve
 				len = strlen(command);
 				if(len > 6){
@@ -198,7 +198,7 @@ main( int argc, char ** argv )
 						continue;
 					}
 					if(reliablemail(sd, buffer, strlen(buffer)) == -1){
-						printf("Failed to send to server. Try again?");
+						printf("Failed to send to server. Try again?\n");
 					}//You can trust on this mail gettin there!
 					//Just maybe not in one piece...
 				}
@@ -208,11 +208,11 @@ main( int argc, char ** argv )
 				}
 			}
 			
-			else if(sscanf(line," %sm", command) == 1){
+			else if(sscanf(line,"%sm", command) == 1){
 				//query, end, quit
 				len = strlen(command);
 				if(len > 5){
-					printf("Invalid command.");
+					printf("Invalid command.\n");
 					continue;
 				}
 				for(i = 0; i < len; i++){
@@ -220,17 +220,17 @@ main( int argc, char ** argv )
 				}
 				if((strcmp(command, "query") == 0) || (strcmp(command, "end") == 0)|| (strcmp(command, "quit") == 0)){
 					if(reliablemail(sd, command, len) == -1){
-						printf("Failed to send to server. Try again?");
+						printf("Failed to send to server. Try again?\n");
 					}//Hopefully munni is a valid float.
 				}
 				else{
-					printf("Invalid command.");
+					printf("Invalid command.\n");
 					continue;
 				}
 			}
 			
 			else{
-				printf("Invalid input. Please check that there are no kittens prancing on your keyboard before proceeding.");
+				printf("Invalid input. Please check that there are no kittens prancing on your keyboard before proceeding.\n");
 				continue;
 			}
 			free(command);
