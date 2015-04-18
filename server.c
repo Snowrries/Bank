@@ -103,8 +103,8 @@ periodic_action_cycle_thread( void * ignore )
 
 void client_session(int sd){
 	char *buffer;
-	char *command;
-	char *arguments;
+	char *command = NULL;
+	char *arguments = NULL;
 	char request[2048];
 	char* storage;
 //	char temp;
