@@ -119,7 +119,7 @@ main( int argc, char ** argv )
 		printf("Too many arguments. Please input just a host name.\n");
 		exit(1);
 	}
-	else if ( (sd = connect_to_server( argv[1], "54261" )) == -1 )
+	else if ( (sd = connect_to_server( argv[1], "54965" )) == -1 )
 	{
 		write( 1, message, sprintf( message,  "\x1b[1;31mCould not connect to server %s errno %s\x1b[0m\n", argv[1], strerror( errno ) ) );
 		return 1;
