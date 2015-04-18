@@ -27,6 +27,8 @@
 	
 	void ChildSigHandler(int signale);
 	
+	void child_cleaning(int signale, siginfo_t *ignore, void *ignore2);
+
 	void client_session(int sd);
 	
 	void *periodic_action_cycle_thread( void * ignore );

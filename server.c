@@ -3,6 +3,7 @@
 int readers = 0;
 
 account_t* p;
+pid_t parent_pid;
 int shmid;
 int sd;
 sem_t actionCycleSemaphore;
@@ -22,8 +23,13 @@ void organized_cleaning(int signale){
 	sem_destroy(welcome);
 	close(sd);
 	shmctl(shmid, IPC_RMID, NULL);
-	shmdt(p);
+	raise(SIGQUIT);
 	exit(EXIT_SUCCESS);
+}
+
+void child_cleaning(int signale, siginfo_t *ignore, void *ignore2){
+	shmdt(p);
+	_exit(0);
 }
 
 void ChildSigHandler(int signale){
@@ -63,13 +69,21 @@ periodic_action_cycle_thread( void * ignore )
 {
 	struct sigaction	action;
 	struct itimerval	interval;
-
+	struct sigaction	exit;
 
 	pthread_detach( pthread_self() );			// Don't wait for me, Argentina ...
 	action.sa_flags = SA_SIGINFO | SA_RESTART;
 	action.sa_sigaction = print_handler;
 	sigemptyset( &action.sa_mask );
 	sigaction( SIGALRM, &action, 0 );			// invoke periodic_action_handler() when timer expires
+
+
+	exit.sa_flags = 0;
+	exit.sa_sigaction = child_cleaning;
+	sigemptyset (&exit.sa_mask);
+	sigaddset (&exit.sa_mask, SIGQUIT);
+	sigaction(SIGQUIT, &exit, NULL);
+
 	interval.it_interval.tv_sec = 20;
 	interval.it_interval.tv_usec = 0;
 	interval.it_value.tv_sec = 20;
@@ -115,8 +129,15 @@ void client_session(int sd){
 //	long senderIPaddr;
 	int insesh;
 	account_t *act;
-
+	struct sigaction exit;
 	insesh  = 0;
+
+
+	exit.sa_flags = 0;
+	exit.sa_sigaction = child_cleaning;
+	sigemptyset (&exit.sa_mask);
+	sigaddset (&exit.sa_mask, SIGQUIT);
+	sigaction(SIGQUIT, &exit, NULL);
 
 	while(1){
 		curr = 0;
@@ -383,13 +404,13 @@ int socks(const char* port){
 			{
 				close(sd);
 
-				//client_session(sporkd);
+				client_session(sporkd);
 				exit(0);//This'll send a sigchld signal.
 			}
 			else//Is parent process
 			{
 				printf("Created child process %d\n", pid);
-				close(sporkd);
+
 			}
 		}
 	}
@@ -437,7 +458,7 @@ void sharingcaring(){
 
 int main(){
 
-//	int sd;
+	pid_t pid;
 	char *func = "server main";
 	pthread_t		tid;
 	struct sigaction memclean;
@@ -475,22 +496,17 @@ int main(){
 	
 	
 
+	parent_pid = getpid();
 
+	pid = fork();
+	if(pid < 0){
+		printf("Fork Failed");
 
-	if ( pthread_attr_init( &kernel_attr ) != 0 )
-	{
-		printf( "pthread_attr_init() failed in %s()\n", func );
-		return 0;
 	}
-	else if ( pthread_attr_setscope( &kernel_attr, PTHREAD_SCOPE_SYSTEM ) != 0 )
-	{
-		printf( "pthread_attr_setscope() failed in %s() line %d\n", func, __LINE__ );
-		return 0;
-	}
-	else if ( pthread_create( &tid, &kernel_attr, periodic_action_cycle_thread, 0 ) != 0 )
-	{
-		printf( "pthread_create() failed in %s()\n", func );
-		return 0;
+	else if(pid == 0){
+		signal(SIGQUIT,SIG_DFL);
+		periodic_action_cycle_thread(NULL);
+		exit(0);
 	}
 
 	//Server-Client Service
