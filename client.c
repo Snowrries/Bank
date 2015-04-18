@@ -57,8 +57,21 @@ connect_to_server( const char * server, const char * port )
 		return -1;
 	}
 }
-void serverscout(){
-	
+void serverscout(int sd){
+	char buffer[124];
+	int status;
+	while(1){
+		if((status = recv(sd, buffer, 100, 0)) > 0){
+			//print buffer in some thread safe manner. 
+			printf("%s", buffer);
+		}
+		else if(status == 0){
+			printf("Lost connection.");
+		}
+		else{
+			perror("recv");
+		}
+	}
 }
 int reliablemail(int sd, char *buffer, int len){
 	int	bsent;
