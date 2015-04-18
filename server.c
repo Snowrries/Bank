@@ -107,12 +107,12 @@ void client_session(int sd){
 	char *arguments;
 	char request[2048];
 	char* storage;
-	char temp;
+//	char temp;
 	int i;
 	int curr,size;
-	float ignore;
-	float money;
-	long senderIPaddr;
+//	float ignore;
+//	float money;
+//	long senderIPaddr;
 	int insesh;
 	account_t *act;
 
@@ -306,15 +306,15 @@ void client_session(int sd){
 }
 int socks(const char* port){
 	int sd;
-	int n;
+//	int n;
 	int sporkd;
 	int pid;
-	struct sockaddr_in addr;
+//	struct sockaddr_in addr;
 	struct addrinfo	addrinfo;
 	struct addrinfo *result;
 	socklen_t addrlen;
 	struct sockaddr_storage them;
-	char message[256];
+//	char message[256];
 	int on = 1;
 
 	struct sigaction action;
@@ -333,7 +333,8 @@ int socks(const char* port){
 	addrinfo.ai_canonname = NULL;
 	addrinfo.ai_next = NULL;
 	if ( getaddrinfo( 0, port, &addrinfo, &result ) != 0 ){
-		fprintf( stderr, "\x1b[1;31mgetaddrinfo( %s ) failed errno is %s.  File %s line %d.\x1b[0m\n", CLIENT_PORT, strerror( errno ), __FILE__, __LINE__ );
+		perror("getaddrinfo");
+		//fprintf( stderr, "\x1b[1;31mgetaddrinfo( %s ) failed errno is %s.  File %s line %d.\x1b[0m\n", CLIENT_PORT, strerror( errno ), __FILE__, __LINE__ );
 		return -1;
 	}
 	else if ( errno = 0, (sd = socket( result->ai_family, result->ai_socktype, result->ai_protocol )) == -1 ){
@@ -436,7 +437,7 @@ void sharingcaring(){
 
 int main(){
 
-	int sd;
+//	int sd;
 	char *func = "server main";
 	pthread_t		tid;
 	struct sigaction memclean;
