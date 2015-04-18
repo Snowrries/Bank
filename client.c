@@ -66,7 +66,7 @@ void *serverscout(void *sdx){
 			//print buffer in some thread safe manner. 
 			printf("%s\n", buffer);
 		}
-		else if(status == 0){
+		else if(status == -1){
 			printf("Lost connection.\n");
 			exit(1);
 		}
