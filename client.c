@@ -13,7 +13,7 @@
 #include	<string.h>
 #include	<sys/socket.h>
 #include	<netdb.h>
-#include	<string.h>
+#include	<ctypes.h>
 
 
 int
@@ -88,7 +88,7 @@ main( int argc, char ** argv )
 	char			message[256];
 	char			buffer[512];
 	char			account[101];
-	char			command;
+	char			*command;
 	int			len;
 	int 			munni;
 	int 			i;
@@ -120,7 +120,7 @@ main( int argc, char ** argv )
 			printf("Enter command:\t");
 			//Ordered in this fashion because there are expected to be more withdraws and deposits
 			//Than send and receives... Just a guess though. Shouldn't affect efficiency terribly.
-			if(scanf("%sm %d",&command, &munni)==2){
+			if(scanf("%sm %d",command, &munni)==2){
 				//withdraws and deposits
 				len = strlen(command);
 				if(len > 8){
@@ -131,7 +131,7 @@ main( int argc, char ** argv )
 					command[i] = (char)tolower(command[i]);
 				}
 				if((strcmp(command, "withdraw") == 0) || (strcmp(command, "deposit") == 0)){
-					if((buffer = sprintf("%s %f", &command, &munni)) < 0){
+					if((buffer = sprintf("%s %f", command, &munni)) < 0){
 						printf("Invalid input...");
 						continue;
 					}
@@ -145,7 +145,7 @@ main( int argc, char ** argv )
 				}
 			}
 			
-			else if(scanf("%sm %100s", &command, &account) == 2){
+			else if(scanf("%sm %100s", command, account) == 2){
 				//Create, serve
 				len = strlen(command);
 				if(len > 6){
@@ -156,7 +156,7 @@ main( int argc, char ** argv )
 					command[i] = (char)tolower(command[i]);
 				}
 				if((strcmp(command, "create") == 0) || (strcmp(command, "serve") == 0)){
-					if((buffer = sprintf("%s %s", &command, &account)) < 0){
+					if((buffer = sprintf("%s %s", command, account)) < 0){
 						printf("Invalid input...");
 						continue;
 					}
@@ -171,7 +171,7 @@ main( int argc, char ** argv )
 				}
 			}
 			
-			else if(scanf("%sm", &command) == 1){
+			else if(scanf("%sm", command) == 1){
 				//query, end, quit
 				len = strlen(command);
 				if(len > 5){
