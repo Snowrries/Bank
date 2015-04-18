@@ -492,7 +492,7 @@ void sharingcaring(){
 
 //	int shmid;
 	int i;
-	account_t* temp ;
+//	account_t* temp ;
 //	key_t key;
 
 	int size;
