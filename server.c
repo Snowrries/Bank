@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include "server.h"
 
 int readers = 0;
@@ -6,6 +7,7 @@ account_t* p;
 pid_t parent_pid;
 int shmid;
 int sd;
+sig_atomic_t deathflag = 1;
 sem_t actionCycleSemaphore;
 //static pthread_attr_t	user_attr;
 //static pthread_attr_t	kernel_attr;
@@ -21,14 +23,14 @@ void organized_cleaning(int signale){
 	sem_destroy(reado);
 	sem_destroy(writeo);
 	sem_destroy(welcome);
+	deathflag = 0;
+	munmap(p,sizeof(account_t)*20);
 	close(sd);
-	shmctl(shmid, IPC_RMID, NULL);
-	raise(SIGQUIT);
-	exit(EXIT_SUCCESS);
+
 }
 
 void child_cleaning(int signale, siginfo_t *ignore, void *ignore2){
-	shmdt(p);
+
 	_exit(0);
 }
 
@@ -129,19 +131,22 @@ void client_session(int sd){
 //	long senderIPaddr;
 	int insesh;
 	account_t *act;
-	struct sigaction exit;
+	struct sigaction end;
 	insesh  = 0;
 
 
-	exit.sa_flags = 0;
-	exit.sa_sigaction = child_cleaning;
-	sigemptyset (&exit.sa_mask);
-	sigaddset (&exit.sa_mask, SIGQUIT);
-	sigaction(SIGQUIT, &exit, NULL);
+	end.sa_flags = 0;
+	end.sa_sigaction = child_cleaning;
+	sigemptyset (&end.sa_mask);
+	sigaddset (&end.sa_mask, SIGQUIT);
+	sigaction(SIGQUIT, &end, NULL);
 
-	while(1){
+	while(deathflag == 1){
 		curr = 0;
 		size = 0;
+		if(deathflag == 1){
+			exit(0);
+		}
 		while((size = recv(sd,request,sizeof(request),0)) > 0){
 			curr += size;
 			if(curr > 2048){
@@ -323,6 +328,9 @@ void client_session(int sd){
 
 
 	}
+	shmdt(p);
+	close(sd);
+	printf("Exiting Child");
 
 }
 int socks(const char* port){
@@ -430,6 +438,8 @@ void sharingcaring(){
 
 	int size;
 	size = 20 * sizeof(account_t); // 20 accounts
+	p = (account_t*) mmap(NULL,sizeof(account_t) *20, -1 , MAP_SHARED | MAP_ANONYMOUS,0,0);
+	/*
 	if(errno = 0, (key = ftok("testplan.txt",42)) == -1){
 		printf("ftok failed; errno :  %s\n", strerror( errno ));
 		exit( 1 );
@@ -445,6 +455,7 @@ void sharingcaring(){
 		printf( "shmat() failed; errno :  %s\n", strerror( errno ) );
 		exit( 1 );
 	}
+	*/
 	for(i = 0 ; i < 20 ; i++){
 		if((temp = init()) == NULL){
 			printf("Init failed");

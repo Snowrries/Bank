@@ -1,10 +1,12 @@
 #ifndef server_h
 #define server_h
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/shm.h>
 #include <sys/time.h>
 #include <sys/wait.h>
+#include <sys/mman.h>
 #include <fcntl.h>
 #include <semaphore.h>
 #include <string.h>
