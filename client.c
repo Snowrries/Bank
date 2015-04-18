@@ -44,7 +44,7 @@ connect_to_server( const char * server, const char * port )
 		do {
 			if ( errno = 0, connect( sd, result->ai_addr, result->ai_addrlen ) == -1 )
 			{
-				sleep( 1 );
+				sleep( 3 );
 				write( 1, message, sprintf( message, "\x1b[2;33mConnecting to server %s ...\x1b[0m\n", server ) );
 			}
 			else
@@ -148,6 +148,8 @@ main( int argc, char ** argv )
 		printf("Please do not withdraw or deposit negative numbers. We do not deal in anti-currency.\n");
 		while ( 1 )
 		{
+			sleep(3);
+			fflush(stdin);
 			printf("Enter command:\t\n");
 			//Ordered in this fashion because there are expected to be more withdraws and deposits
 			//Than send and receives... Just a guess though. Shouldn't affect efficiency terribly.
@@ -155,7 +157,7 @@ main( int argc, char ** argv )
 				//withdraws and deposits
 				len = strlen(command);
 				if(len > 8){
-					printf("Invalid command.");
+					printf("Invalid command.\n");
 					continue;
 				}
 				for(i = 0; i < len; i++){
@@ -228,7 +230,7 @@ main( int argc, char ** argv )
 				continue;
 			}
 			free(command);
-			sleep(3);
+			
 		}
 		close( sd );
 		return 0;
