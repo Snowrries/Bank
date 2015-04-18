@@ -11,18 +11,14 @@ sig_atomic_t deathflag = 1;
 sem_t actionCycleSemaphore;
 //static pthread_attr_t	user_attr;
 //static pthread_attr_t	kernel_attr;
-sem_t *reado;
-sem_t *writeo;
-sem_t *welcome;
+
 
 
 void organized_cleaning(int signale){
 
 	/*Note: shmid is a global var. Further, sigint is blocked while shared memory is being created, 
 	so shmid is guaranteed to be a pointer to a valid block of shared memory*/
-	sem_close(reado);
-	sem_close(writeo);
-	sem_close(welcome);
+
 	deathflag = 0;
 	munmap(p,sizeof(account_t)*20);
 	close(sd);
@@ -72,6 +68,14 @@ periodic_action_cycle_thread( void * ignore )
 	struct sigaction	action;
 	struct itimerval	interval;
 	struct sigaction	exit;
+	sem_t *reado;
+	sem_t *writeo;
+	sem_t *welcome;
+
+	reado = sem_open("/reado",0);
+	writeo= sem_open("/writeo",0);
+	welcome = sem_open("/welcome",0);
+
 
 	pthread_detach( pthread_self() );			// Don't wait for me, Argentina ...
 	action.sa_flags = SA_SIGINFO | SA_RESTART;
@@ -122,6 +126,7 @@ void client_session(int sd){
 	char account[101];
 	char request[256];
 	char line[1024];
+	char *temp;
 	int i;
 	int curr,size;
 	int insesh;
@@ -129,8 +134,13 @@ void client_session(int sd){
 	account_t *act;
 	struct sigaction end;
 	insesh  = 0;
+	sem_t *reado;
+	sem_t *writeo;
+	sem_t *welcome;
 
-
+	reado = sem_open("/reado",0);
+	writeo= sem_open("/writeo",0);
+	welcome = sem_open("/welcome",0);
 	end.sa_flags = 0;
 	end.sa_sigaction = child_cleaning;
 	sigemptyset (&end.sa_mask);
@@ -140,19 +150,18 @@ void client_session(int sd){
 	while(deathflag == 1){
 		curr = 0;
 		size = 0;
-
-		while((size = recv(sd,request,sizeof(request),0)) > 0){
-			curr += size;
-			if(curr > 1024){
-				line = "Overflow input. Please enter another command.";
-				write( sd, line, strlen(line) + 1 );
-				continue;
-			}
-			strncpy(line+curr, request, size);
+		fflush(stdout);
+		memset(request,0,256);
+		while((size = recv(sd,request,sizeof(request),0)) < 0){
 
 		}
+		printf("%s",request);
+		fflush(stdout);
 		//Create or serve
-		if(sscanf(line,"%7s %101s\n", command, account) == 2){
+
+		if(sscanf(request,"%7s %101s", command, account) == 2){
+
+			fflush(stdout);
 			if(insesh == 1){
 				//Send something like 'you're already being served.
 				if(send(sd, "Active customer session: cannot create or serve new account.", 60 , 0) == -1){
@@ -164,10 +173,14 @@ void client_session(int sd){
 			}
 			sem_wait(reado);
 			sem_wait(writeo);
+
 			if(strcmp(command, "create") == 0){
+				printf("Account Made");
+				fflush(stdout);
 				for(i = 0; i < 20; i++){
-					if(p[i].name != NULL){//We need to init all SHM to 0
-						//Make account...
+					if(p[i].name == NULL){//We need to init all SHM to 0
+						printf("Account Made");
+						fflush(stdout);
 						create(&p[i],account);
 						break;
 					}
@@ -182,6 +195,7 @@ void client_session(int sd){
 					}
 				}
 			}
+
 			else if(strcmp(command, "serve") == 0){
 				for(i = 0; i < 20; i++){
 					if(((p[i].name) != NULL) && (strcmp(p[i].name, account) == 0)){
@@ -210,7 +224,7 @@ void client_session(int sd){
 				}
 			}
 		}
-		else if(sscanf(line,"%9s %f\n",command, &munni)==2){
+		else if(sscanf(request,"%9s %f\n",command, &munni)==2){
 
 			if(insesh == 0){
 				//Send something like 'you must be in a session to use this operation.'
@@ -265,7 +279,7 @@ void client_session(int sd){
 		}
 		//query, end, quit
 		
-		else if(sscanf(line,"%6s\n", command) == 1){
+		else if(sscanf(request,"%6s\n", command) == 1){
 			if(insesh == 0){
 				if((strcmp(command,"query")==0)||(strcmp(command,"end")==0))
 				//Send something like 'you must be in a session to use this operation.'
@@ -286,8 +300,8 @@ void client_session(int sd){
 			
 			if(strcmp(command, "query") == 0){
 				
-				sprintf(line,"%f",act->balance);
-				if(send(sd, line, strlen(line), 0) == -1){
+				sprintf(request,"%f",act->balance);
+				if(send(sd, request, strlen(request), 0) == -1){
 					perror("send");
 				}
 			}
@@ -339,9 +353,12 @@ void client_session(int sd){
 			printf("Please enter a valid command, in all lowercase. ");
 		}
 
-
+		fflush(stdout);
 	}
-	shmdt(p);
+
+	sem_close(reado);
+	sem_close(writeo);
+	sem_close(welcome);
 	close(sd);
 	printf("Exiting Child");
 
@@ -355,7 +372,7 @@ int socks(const char* port){
 	struct addrinfo	addrinfo;
 	struct addrinfo *result;
 	socklen_t addrlen;
-	struct sockaddr_line them;
+	struct sockaddr_in them;
 //	char message[256];
 	int on = 1;
 
@@ -376,7 +393,7 @@ int socks(const char* port){
 	addrinfo.ai_next = NULL;
 	if ( getaddrinfo( 0, port, &addrinfo, &result ) != 0 ){
 		perror("getaddrinfo");
-		//fprintf( stderr, "\x1b[1;31mgetaddrinfo( %s ) failed errno is %s.  File %s line %d.\x1b[0m\n", CLIENT_PORT, strerror( errno ), __FILE__, __LINE__ );
+		//fprintf( stderr, "\x1b[1;31mgetaddrinfo( %s ) failed errno is %s.  File %s request %d.\x1b[0m\n", CLIENT_PORT, strerror( errno ), __FILE__, __LINE__ );
 		return -1;
 	}
 	else if ( errno = 0, (sd = socket( result->ai_family, result->ai_socktype, result->ai_protocol )) == -1 ){
@@ -413,7 +430,7 @@ int socks(const char* port){
 		}
 		
 		while((sporkd = accept(sd,(struct sockaddr *)&them, &addrlen)) != -1){
-			addrlen = sizeof(struct sockaddr_line);
+			addrlen = sizeof(struct sockaddr_in);
 
 
 			pid = fork();
@@ -425,14 +442,13 @@ int socks(const char* port){
 			else if(pid == 0)//Is Child process
 			{
 				close(sd);
-
 				client_session(sporkd);
 				exit(0);//This'll send a sigchld signal.
 			}
 			else//Is parent process
 			{
-				printf("Created child process %d\n", pid);
 				close(sporkd);
+				printf("Created child process %d\n", pid);
 
 			}
 		}
@@ -485,18 +501,19 @@ void sharingcaring(){
 int main(){
 
 	pid_t pid;
-//	char *func = "server main";
-//	pthread_t		tid;
+	sem_t *reado;
+	sem_t *writeo;
+	sem_t *welcome;
 	struct sigaction memclean;
-	if((reado = sem_open("reado",O_CREAT,0640,1)) == SEM_FAILED){
+	if((reado = sem_open("/reado",O_CREAT,0640,1)) == SEM_FAILED){
 			printf("Read semaphore init fail.");
 			exit(1);
 		}
-		else if((writeo = sem_open("writeo",O_CREAT,0640,1)) == SEM_FAILED){
+		else if((writeo = sem_open("/writeo",O_CREAT,0640,1)) == SEM_FAILED){
 			printf("Write semaphore init fail.");
 			exit(1);
 		}
-		else if((welcome = sem_open("welcome",O_CREAT,0640,1)) == SEM_FAILED){
+		else if((welcome = sem_open("/welcome",O_CREAT,0640,1)) == SEM_FAILED){
 			printf("Welcome semaphore init fail.");
 			exit(1);
 		}
@@ -538,6 +555,9 @@ int main(){
 	//Server-Client Service
 	socks("54261");
 
+	sem_close(reado);
+	sem_close(writeo);
+	sem_close(welcome);
 
 	return 0;
 }
