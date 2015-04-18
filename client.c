@@ -1,8 +1,5 @@
 /*
  * client.c
- *
- *  Created on: Apr 10, 2015
- *      Author: Anthony
  */
 
 #include	<sys/types.h>
@@ -88,7 +85,7 @@ main( int argc, char ** argv )
 	char			message[256];
 	char			buffer[512];
 	char			account[101];
-	char			*command;
+	char			*command = NULL;
 	int			len;
 	float 			munni;
 	int 			i;
