@@ -20,9 +20,9 @@ void organized_cleaning(int signale){
 
 	/*Note: shmid is a global var. Further, sigint is blocked while shared memory is being created, 
 	so shmid is guaranteed to be a pointer to a valid block of shared memory*/
-	sem_destroy(reado);
-	sem_destroy(writeo);
-	sem_destroy(welcome);
+	sem_close(reado);
+	sem_close(writeo);
+	sem_close(welcome);
 	deathflag = 0;
 	munmap(p,sizeof(account_t)*20);
 	close(sd);
