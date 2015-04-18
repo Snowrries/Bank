@@ -148,7 +148,7 @@ main( int argc, char ** argv )
 		printf("Please do not withdraw or deposit negative numbers. We do not deal in anti-currency.");
 		while ( 1 )
 		{
-			printf("Enter command:\t");
+			printf("Enter command:\t\n");
 			//Ordered in this fashion because there are expected to be more withdraws and deposits
 			//Than send and receives... Just a guess though. Shouldn't affect efficiency terribly.
 			if(scanf("%sm %f",command, &munni)==2){
