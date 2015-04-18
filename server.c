@@ -208,8 +208,8 @@ void client_session(int sd){
 					if(p[i].name == NULL){//We need to init all SHM to 0
 						printf("Account Made\n");
 						create(&p[i],account);
-						sem_post(writeo);
-						sem_post(reado);
+						//sem_post(writeo);
+						//sem_post(reado);
 						break;
 					}
 					else if(strcmp(p[i].name, account) == 0){
@@ -219,8 +219,8 @@ void client_session(int sd){
 						if(send(sd, "Account name already exists.", 28 , 0) == -1){
 							perror("send");
 						}
-						sem_post(writeo);
-						sem_post(reado);
+						//sem_post(writeo);
+						//sem_post(reado);
 						break;
 					}
 				}
@@ -230,8 +230,6 @@ void client_session(int sd){
 				for(i = 0; i < 20; i++){
 					if(((p[i].name) != NULL) && (strcmp(p[i].name, account) == 0)){
 						serve(act = &p[i]);
-						sem_post(writeo);
-						sem_post(reado);
 						break;//I hope this exits the loop
 					}
 				}
@@ -384,8 +382,6 @@ void client_session(int sd){
 		else{
 			printf("Please enter a valid command, in all lowercase. ");
 		}
-
-		fflush(stdout);
 	}
 
 	sem_close(reado);
@@ -393,9 +389,8 @@ void client_session(int sd){
 	sem_close(welcome);
 	close(sd);
 	printf("Exiting Child");
-
-
 }
+
 int socks(const char* port){
 	int sd;
 //	int n;
