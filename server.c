@@ -37,7 +37,7 @@ void child_cleaning(int signale, siginfo_t *ignore, void *ignore2){
 void ChildSigHandler(int signale){
 	pid_t pid;
 	int status;
-	while( (pid = waitpid(-1,&status,WNOHANG)) > 0){
+	while( (pid = waitpid(-1,&status,WNOHANG)) == -1){
 		sleep(1);
 	}
 	printf("Child process killed; PID: %d\n", (int)pid );
