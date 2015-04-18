@@ -42,19 +42,19 @@ struct account create(account_t *acc,char* name){
 struct account *init(){
 	int error;
 
-			if((error = pthread_mutex_lock(&newAccount)) == EBUSY){
-				printf("Account is already in use");
-				exit(1);
-				return NULL;
-			}
-			if(error != 0){
-				printf("Error at Line %d Account could not be accessed \n", __LINE__);
-				exit(1);
-				return NULL;
-			}
-
+		if((error = pthread_mutex_lock(&newAccount)) == EBUSY){
+			printf("Account is already in use");
+			exit(1);
+		}
+		else if(error != 0){
+			printf("Error at Line %d Account could not be accessed \n", __LINE__);
+			exit(1);
+		}
+		
 		struct account *new =(struct account *) malloc(sizeof(struct account));
 		new->name = NULL;
+		new->session = 0;
+		new->balance = 0;
 		if(pthread_mutex_init(&(new->lock),NULL) != 0){
 					printf("Mutex init failed");
 					return NULL;
