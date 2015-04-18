@@ -169,41 +169,24 @@ void client_session(int sd){
 		curr = 0;
 		size = 0;
 		line[0] = '\0';
-		/*
-		while((size = recv(sd,request,sizeof(request),0)) > 0){
-					curr += size;
-					printf("%d\n",curr);
-					if(curr > 1024){
-						temp = "Overflow input. Please enter another command.";
-						write( sd, temp, strlen(temp) + 1 );
-						continue;
-					}
-					printf("strn\n");
-					strncat(line, request, size);
-					line[curr + 1] = '\0';
-					printf("%s\n",line);
-
-		//Create or serve
-		}
-*/
 		if(recv(sd,line, sizeof(line),0)<1){
 			perror("recv failed");
 			exit(0);
 		}
 
 		printf("%s\n",line);
-
-		if(sscanf(request,"%9s %f\n",command, &munni)==2){
-			printf("word %s, %f \n", command, munni);
-			if(insesh == 0){
+			//send new balance, or error if broken
+		if(sscanf(line,"%7s %101s", command, account) == 2){
+			if(strcmp(command, "deposit") == 0 || strcmp(command, "withdraw") == 0){
+				if(insesh == 0){
 				//Send something like 'you must be in a session to use this operation.'
 				if(send(sd, "You must be in a session to withdraw or deposit.", 48 , 0) == -1){
 					perror("send");
 				}	
 				continue;
 			}	
-			//Deposit
-			
+			munni = strtod(account);
+			printf("word %s, %f \n", command, munni);
 			sem_wait(reado);
 			sem_wait(welcome);
 			readers++;
@@ -242,12 +225,10 @@ void client_session(int sd){
 				sem_post(writeo);
 			}
 			sem_post(welcome);
-
-
-			//send new balance, or error if broken
 		}
 		
-		else if(sscanf(line,"%7s %101s", command, account) == 2){
+		else if((strcmp(command, "create") == 0)||(strcmp(command, "serve") == 0)){
+				
 			printf("servecreate %s, %s\n", command, account);
 			if(insesh == 1){
 				//Send something like 'you're already being served.
@@ -258,9 +239,9 @@ void client_session(int sd){
 				//Must end session to creat account'
 				continue;
 			}
-			printf("Hey3\n");
+			printf("reado sem\n");
 			sem_wait(reado);
-			printf("Hey\n");
+			printf("writeo sem\n");
 			sem_wait(writeo);
 			if(strcmp(command, "create") == 0){
 				for(i = 0; i < 20; i++){
@@ -314,6 +295,7 @@ void client_session(int sd){
 				}
 			}
 		}
+	}
 
 		//query, end, quit
 		
