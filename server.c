@@ -313,7 +313,9 @@ void client_session(int sd){
 				}
 				continue;
 			}
+			printf("reado queryendquit\n");
 			sem_wait(reado);
+			printf("welcome queryendquit\n");
 			sem_wait(welcome);
 			readers++;
 			if(readers == 1){//If first reader, lock write.
