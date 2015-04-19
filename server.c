@@ -301,7 +301,7 @@ void client_session(int sd){
 
 		//query, end, quit
 		
-		else if(sscanf(request,"%6s\n", command) == 1){
+		else if(sscanf(line,"%6s", command) == 1){
 			printf("queryendquit %s\n", command);
 			if(insesh == 0){
 				if((strcmp(command,"query")==0)||(strcmp(command,"end")==0)){
@@ -362,7 +362,7 @@ void client_session(int sd){
 				break;
 			}
 			else{
-				if(send(sd, "Unspecified error, eq...", 20 , 0) == -1){
+				if(send(sd, "Unspecified error, eq...", 24 , 0) == -1){
 					perror("send");
 				}	
 			}
