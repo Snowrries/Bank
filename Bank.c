@@ -77,10 +77,10 @@ void Bankinit(){
 
 float withdraw(account_t *acc,float amt){
 	if(amt < 0){
-		return acc->balance;
+		return -1;
 	}
 	else if(amt > (acc->balance)){
-		return acc->balance;
+		return -2;
 	}
 
 	return acc->balance -=amt;
@@ -88,7 +88,7 @@ float withdraw(account_t *acc,float amt){
 
 float deposit(account_t *acc,float amt){
 	if(amt < 0){
-		return acc->balance;
+		return -1;
 	}
 
 	return acc->balance +=amt;
