@@ -180,7 +180,7 @@ void client_session(int sd){
 			if(strcmp(command, "deposit") == 0 || strcmp(command, "withdraw") == 0){
 				if(insesh == 0){
 				//Send something like 'you must be in a session to use this operation.'
-				if(send(sd, "You must be in a session to withdraw or deposit.", 48 , 0) == -1){
+				if(send(sd, "You must be in a session to withdraw or deposit.\0", 49 , 0) == -1){
 					perror("send");
 				}	
 				continue;
@@ -202,7 +202,7 @@ void client_session(int sd){
 			
 			if(strcmp(command, "deposit") == 0){
 				deposit(act, munni);
-				if(send(sd, "Deposited funds.", 16 , 0) == -1){
+				if(send(sd, "Deposited funds.\0", 17 , 0) == -1){
 					perror("send");
 				}	
 			}
@@ -210,7 +210,7 @@ void client_session(int sd){
 			//Withdraw
 			else if(strcmp(command, "withdraw") == 0){
 				withdraw(act, munni);
-				if(send(sd, "Withdrew funds. Thank you for your generous donation. ", 54 , 0) == -1){
+				if(send(sd, "Withdrew funds. Thank you for your generous donation.\0", 54 , 0) == -1){
 					perror("send");
 				}	
 			}
@@ -233,7 +233,7 @@ void client_session(int sd){
 			printf("servecreate %s, %s\n", command, account);
 			if(insesh == 1){
 				//Send something like 'you're already being served.
-				if(send(sd, "Active customer session: cannot create or serve new account.", 60 , 0) == -1){
+				if(send(sd, "Active customer session: cannot create or serve new account.\0", 61 , 0) == -1){
 					perror("send");
 				}
 				//Let's hope I counted right
@@ -258,7 +258,7 @@ void client_session(int sd){
 						//account already exists.
 						//Handle ... somehow.
 						//Send error, already exists
-						if(send(sd, "Account name already exists.", 28 , 0) == -1){
+						if(send(sd, "Account name already exists.\0", 29 , 0) == -1){
 							perror("send");
 						}
 						//sem_post(writeo);
@@ -278,13 +278,13 @@ void client_session(int sd){
 				}
 				if(i == 20){
 					//Could not serve. Account not found. Return such?
-					if(send(sd, "Could not find account.", 23 , 0) == -1){
+					if(send(sd, "Could not find account.\0", 24 , 0) == -1){
 						perror("send");
 					}
 				}
 			}
 			else{
-				if(send(sd, "Unspecified error...", 20 , 0) == -1){
+				if(send(sd, "Unspecified error...\0", 21 , 0) == -1){
 					perror("send");
 				}	
 			}
@@ -292,7 +292,7 @@ void client_session(int sd){
 			sem_post(reado);
 			if(i == 20){
 				//Send error, bank full
-				if(send(sd, "Error, bank full.", 17,0) == -1){
+				if(send(sd, "Error, bank full.\0", 18,0) == -1){
 					perror("send");
 				}
 			}
@@ -306,7 +306,7 @@ void client_session(int sd){
 			if(insesh == 0){
 				if((strcmp(command,"query")==0)||(strcmp(command,"end")==0)){
 				//Send something like 'you must be in a session to use this operation.'
-					if(send(sd,"You must be in a session to use this operation.", 47, 0)==0){
+					if(send(sd,"You must be in a session to use this operation.\0", 48, 0)==0){
 						perror("send");
 					}
 				}
@@ -324,8 +324,8 @@ void client_session(int sd){
 			
 			if(strcmp(command, "query") == 0){
 				
-				sprintf(request,"%f",query(act));
-				if(send(sd, request, strlen(request), 0) == -1){
+				sprintf(request,"%f\0",query(act));
+				if(send(sd, request, strlen(request)+1, 0) == -1){
 					perror("send");
 				}
 			}
@@ -335,7 +335,7 @@ void client_session(int sd){
 				insesh = 0;
 				act->session = 0;
 				pthread_mutex_unlock(&(act->lock));
-				if(send(sd,"Client session ended. You may now create another account, or be served.", 71, 0) == -1){
+				if(send(sd,"Client session ended. You may now create another account, or be served.\0", 72, 0) == -1){
 					perror("send");
 				}
 				
@@ -345,12 +345,12 @@ void client_session(int sd){
 				printf("Entering quit conditional.\n");
 				if(insesh == 1){
 					pthread_mutex_unlock(&(act->lock));
-					if(send(sd,"Client session ended. Goodbye.", 30 , 0) == -1){
+					if(send(sd,"Client session ended. Goodbye.\0", 31 , 0) == -1){
 						perror("send");
 					}
 				}
 				else{
-					if(send(sd,"Goodbye.", 8 , 0) == -1){
+					if(send(sd,"Goodbye.\0", 9 , 0) == -1){
 						perror("send");
 					}
 				}
@@ -365,7 +365,7 @@ void client_session(int sd){
 				break;*/
 			}
 			else{
-				if(send(sd, "Unspecified error, eq...", 24 , 0) == -1){
+				if(send(sd, "Unspecified error, eq...\0", 25 , 0) == -1){
 					perror("send");
 				}	
 			}
