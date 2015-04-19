@@ -186,6 +186,7 @@ main( int argc, char ** argv )
 				//withdraws and deposits
 				printf("sscanf command: %s, %f\n", command, munni);
 				len = strlen(command);
+				printf("sscanf withdraordeposit len: %d", len);
 				if(len > 8){
 					printf("Invalid command.\n");
 					continue;
