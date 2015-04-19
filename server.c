@@ -176,7 +176,7 @@ void client_session(int sd){
 
 		printf("%s\n",line);
 			//send new balance, or error if broken
-		if(sscanf(line,"%7s %101s", command, account) == 2){
+		if(sscanf(line,"%9s %101s", command, account) == 2){
 			if(strcmp(command, "deposit") == 0 || strcmp(command, "withdraw") == 0){
 				if(insesh == 0){
 				//Send something like 'you must be in a session to use this operation.'
