@@ -353,7 +353,7 @@ void client_session(int sd){
 						perror("send");
 					}
 				}
-				deathflag = 0;
+				raise(SIGINT);
 				/*
 				sem_wait(welcome);
 				readers--;
