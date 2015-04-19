@@ -1,5 +1,6 @@
 #ifndef CLIENT_H
 #define CLIENT_H
+
 #include	<pthread.h>
 #include	<sys/types.h>
 #include	<stdio.h>
@@ -11,7 +12,6 @@
 #include	<netdb.h>
 #include	<signal.h>
 #include	<ctype.h>
-
 /*
 • Account name (a string up to 100 characters long)
 • Current balance (a floating-point number)
@@ -27,6 +27,6 @@ int reliablemail(int sd, char* buf, int len);
 
 int connect_to_server( const char * server, const char * port );
 
-int serverscout(void *arg);
+void* serverscout(void *arg);
 
 #endif //client.h
