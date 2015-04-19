@@ -53,8 +53,8 @@ void periodic_printing(){
 		if((p[i].name)[0] == '\0'){
 			continue;
 		}
-		write( 1, message, sprintf( message, "\x1b[2;33mAccount name: %s ...\x1b[0m\n", p[i].name ) );
-		write( 1, message, sprintf( message, "\x1b[2;33mBalance: %f ...\x1b[0m\n", p[i].balance ) );
+		write( 1, message, sprintf( message, "\x1b[2;33mAccount name: %s \x1b[0m\n", p[i].name ) );
+		write( 1, message, sprintf( message, "\x1b[2;33mBalance: %f \x1b[0m\n", p[i].balance ) );
 
 		if(p[i].session){
 			write( 1, message, sprintf( message, "\x1b[2;33m In session: Yes  \x1b[0m\n" ) );
@@ -102,13 +102,9 @@ periodic_action_cycle_thread( void * ignore )
 	for ( ;; )
 	{
 		sem_wait( &actionCycleSemaphore );		// Block until posted
-		printf("yo\n");
 		sem_wait(reado);
-		printf("yo1\n");
 		sem_wait(welcome);
-		printf("yo3\n");
 		readers++;
-		printf("%d\n",readers);
 		if(readers == 1){
 			sem_wait(writeo);
 		}
@@ -309,8 +305,6 @@ void client_session(int sd){
 		//query, end, quit
 
 		else if(sscanf(line,"%6s", command) == 1){
-			printf("queryendquit %s\n", command);
-			printf("String comparison2: %d\n",strcmp(command, "quit"));
 			if(insesh == 0){
 				if((strcmp(command,"query")==0)||(strcmp(command,"end")==0)){
 					//Send something like 'you must be in a session to use this operation.'
@@ -320,9 +314,7 @@ void client_session(int sd){
 					continue;
 				}
 			}
-			printf("reado queryendquit\n");
 			sem_wait(reado);
-			printf("welcome queryendquit\n");
 			sem_wait(welcome);
 			readers++;
 			if(readers == 1){//If first reader, lock write.
@@ -352,7 +344,6 @@ void client_session(int sd){
 			}
 			//quit
 			else if(strcmp(command, "quit") == 0){
-				printf("Entering quit conditional.\n");
 				if(insesh == 1){
 					pthread_mutex_unlock(&(act->lock));
 					if(send(sd,"Client session ended. Goodbye.\0", 31 , 0) == -1){
@@ -420,7 +411,6 @@ int socks(const char* port){
 	addrinfo.ai_next = NULL;
 	if ( getaddrinfo( 0, port, &addrinfo, &result ) != 0 ){
 		perror("getaddrinfo");
-		//fprintf( stderr, "\x1b[1;31mgetaddrinfo( %s ) failed errno is %s.  File %s request %d.\x1b[0m\n", CLIENT_PORT, strerror( errno ), __FILE__, __LINE__ );
 		return -1;
 	}
 	else if ( errno = 0, (sd = socket( result->ai_family, result->ai_socktype, result->ai_protocol )) == -1 ){
@@ -475,8 +465,7 @@ int socks(const char* port){
 			else//Is parent process
 			{
 				close(sporkd);
-				printf("Created child process %d\n", pid);
-
+				printf("Created child process; client connected. Pid:  %d\n", pid);
 			}
 		}
 	}
