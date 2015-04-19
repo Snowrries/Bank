@@ -257,7 +257,22 @@ void client_session(int sd){
 					for(i = 0; i < 20; i++){
 						if((p[i].name)[0] == '\0'){//We need to init all SHM to 0
 							printf("Account Created: %s\n",account);
-							create(&p[i],account);
+							nonono = create(&p[i],account)
+							if(nonono == -1){
+								printf("Account is already in use\n");
+									
+								if(send(sd, "Account is already in use.\0", 27 , 0) == -1){
+									perror("send");
+								}
+								
+							}
+							else if(nonono ==-2 ){
+								printf("Account could not be accessed\n");
+									
+								if(send(sd, "Account could not be accessed.\0", 31 , 0) == -1){
+									perror("send");
+								}
+							}
 							printf("%s\n", p[i].name);
 							break;
 						}
@@ -274,7 +289,14 @@ void client_session(int sd){
 				else if(strcmp(command, "serve") == 0){
 					for(i = 0; i < 20; i++){
 						if(((p[i].name)[0] != '\0') && (strcmp(p[i].name, account) == 0)){
-							serve(act = &p[i]);
+							nonono = serve(act = &p[i]);
+							if(nonono == -1){
+								send(sd, "Account is already in use.\0", 27, 0);
+							}
+							else if(nonono == -2){
+								
+								send(sd, "Serve error.\0", 13, 0);
+							}
 							insesh = 1;
 							break;//I hope this exits the loop
 						}
