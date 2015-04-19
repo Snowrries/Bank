@@ -208,7 +208,7 @@ void client_session(int sd){
 						perror("send");
 					}
 				}
-				else(send(sd, "Deposited funds.\0", 17 , 0) == -1){
+				else if(send(sd, "Deposited funds.\0", 17 , 0) == -1){
 					perror("send");
 				}	
 			}
@@ -226,7 +226,7 @@ void client_session(int sd){
 						perror("send");
 					}
 				}
-				else(send(sd, "Withdrew funds. Thank you for your generous donation.\0", 54 , 0) == -1){
+				else if(send(sd, "Withdrew funds. Thank you for your generous donation.\0", 54 , 0) == -1){
 					perror("send");
 				}	
 			}
