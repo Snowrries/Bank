@@ -342,6 +342,7 @@ void client_session(int sd){
 			}
 			//quit
 			else if(strcmp(command, "quit") == 0){
+				printf("Entering quit conditional.\n");
 				if(insesh == 1){
 					pthread_mutex_unlock(&(act->lock));
 					if(send(sd,"Client session ended. Goodbye.", 30 , 0) == -1){
