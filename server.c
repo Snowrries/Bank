@@ -210,7 +210,7 @@ void client_session(int sd){
 			//Withdraw
 			else if(strcmp(command, "withdraw") == 0){
 				withdraw(act, munni);
-				if(send(sd, "Withdrew funds. Thank you for your generous donation. ;)", 56 , 0) == -1){
+				if(send(sd, "Withdrew funds. Thank you for your generous donation. ", 54 , 0) == -1){
 					perror("send");
 				}	
 			}
@@ -304,7 +304,7 @@ void client_session(int sd){
 		else if(sscanf(request,"%6s\n", command) == 1){
 			printf("queryendquit %s\n", command);
 			if(insesh == 0){
-				if(strcmp(command,"query")==0){
+				if((strcmp(command,"query")==0)||(strcmp(command,"end")==0)){
 				//Send something like 'you must be in a session to use this operation.'
 					if(send(sd,"You must be in a session to use this operation.", 47, 0)==0){
 						perror("send");
@@ -362,7 +362,7 @@ void client_session(int sd){
 				break;
 			}
 			else{
-				if(send(sd, "Unspecified error...", 20 , 0) == -1){
+				if(send(sd, "Unspecified error, eq...", 20 , 0) == -1){
 					perror("send");
 				}	
 			}
