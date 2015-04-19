@@ -323,6 +323,7 @@ void client_session(int sd){
 			sem_post(reado);
 			//Send account balance
 			
+			printf("String comparison3: %d\n",strcmp(command, "quit"));
 			if(strcmp(command, "query") == 0){
 				
 				sprintf(request,"%f",query(act));
