@@ -28,7 +28,7 @@ void printAccounts(account_t *acc);
 
 void Bankinit();
 
-struct account create(account_t *acc,char* name);
+int create(account_t *acc,char* name);
 
 struct account *init();
 
