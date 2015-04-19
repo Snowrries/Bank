@@ -6,12 +6,9 @@ pthread_mutex_t newAccount;
 int serve(account_t *acc){
 	int error;
 	if((error = pthread_mutex_trylock(&(acc->lock))) == EBUSY){
-		printf("Account is already in use");
 		return -1;
 	}
 	if(error != 0){
-		printf("Error at Line %d Account could not be accessed \n", __LINE__);
-
 		return -2;
 	}
 
@@ -20,17 +17,14 @@ int serve(account_t *acc){
 	return 1;
 }
 
-struct account create(account_t *acc,char* name){
+int create(account_t *acc,char* name){
 	int error;
 
-	printf("Beginning of create function.\n");
 	if((error = pthread_mutex_trylock(&newAccount)) == EBUSY){
-		printf("Account is already in use\n");
-		return *acc;
+		return -1;
 	}
 	if(error != 0){
-		printf("Error at Line %d Account could not be accessed \n", __LINE__);
-		return *acc;
+		return -2;
 	}
 
 
