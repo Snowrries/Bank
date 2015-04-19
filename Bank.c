@@ -14,7 +14,7 @@ int serve(account_t *acc){
 
 		return -2;
 	}
-//	pthread_mutex_lock(&(acc->lock));
+
 	acc->session = 1;
 
 	return 1;
@@ -22,7 +22,7 @@ int serve(account_t *acc){
 
 struct account create(account_t *acc,char* name){
 	int error;
-	
+
 	printf("Beginning of create function.\n");
 	if((error = pthread_mutex_trylock(&newAccount)) == EBUSY){
 		printf("Account is already in use\n");
@@ -33,7 +33,7 @@ struct account create(account_t *acc,char* name){
 		return *acc;
 	}
 
-//	pthread_mutex_lock(&newAccount);
+
 	strcpy(acc->name, name);
 	printf("End of create function.\n");
 	acc->balance = 0;
@@ -45,33 +45,33 @@ struct account create(account_t *acc,char* name){
 struct account *init(){
 	int error;
 
-		if((error = pthread_mutex_trylock(&newAccount)) == EBUSY){
-			printf("Account is already in use");
-			exit(1);
-		}
-		else if(error != 0){
-			printf("Error at Line %d Account could not be accessed \n", __LINE__);
-			exit(1);
-		}
-		
-		struct account *new =(struct account *) malloc(sizeof(struct account));
-		(new->name)[0] = '\0';
-		new->session = 0;
-		new->balance = 0;
-		if(pthread_mutex_init(&(new->lock),NULL) != 0){
-					printf("Mutex init failed");
-					return NULL;
-				}
-		pthread_mutex_unlock(&newAccount);
-		return new;
+	if((error = pthread_mutex_trylock(&newAccount)) == EBUSY){
+		printf("Account is already in use");
+		exit(1);
+	}
+	else if(error != 0){
+		printf("Error at Line %d Account could not be accessed \n", __LINE__);
+		exit(1);
+	}
+
+	struct account *new =(struct account *) malloc(sizeof(struct account));
+	(new->name)[0] = '\0';
+	new->session = 0;
+	new->balance = 0;
+	if(pthread_mutex_init(&(new->lock),NULL) != 0){
+		printf("Mutex init failed");
+		return NULL;
+	}
+	pthread_mutex_unlock(&newAccount);
+	return new;
 }
 
 void Bankinit(){
 
 	if(pthread_mutex_init(&newAccount,NULL)!=0){
-			printf("Mutex Init Failed");
-			exit(1);
-		}
+		printf("Mutex Init Failed");
+		exit(1);
+	}
 
 }
 
@@ -107,7 +107,7 @@ void printAccounts(account_t *acc){
 		printf("Account: %s \t",acc->name);
 		printf("Balance: %f \t",acc->balance);
 		if(acc->session == 1){
-		printf("IN SERVICE \n");
+			printf("IN SERVICE \n");
 		}
 		totalacc++;
 		iter ++;

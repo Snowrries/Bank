@@ -17,7 +17,7 @@
 • Current balance (a floating-point number)
 • In-session flag (a boolean flag indicating whether or not the account is currently
 being serviced)
-*/
+ */
 
 
 

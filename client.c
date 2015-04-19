@@ -111,7 +111,7 @@ main( int argc, char ** argv )
 	int 			i;
 	char			line[1024];
 	struct sigaction end;
-	
+
 	char *func = "client main";
 
 
@@ -129,7 +129,7 @@ main( int argc, char ** argv )
 		write( 1, message, sprintf( message,  "\x1b[1;31mCould not connect to server %s errno %s\x1b[0m\n", argv[1], strerror( errno ) ) );
 		return 1;
 	}
-	
+
 	else if ( pthread_attr_init( &kernel_attr ) != 0 )
 	{
 		printf( "pthread_attr_init() failed in %s()\n", func );
@@ -145,7 +145,7 @@ main( int argc, char ** argv )
 		printf( "pthread_create() failed in %s()\n", func );
 		return 0;
 	}
-	
+
 	else
 	{
 		printf( "Connected to server %s\n", argv[1] );
@@ -196,7 +196,7 @@ main( int argc, char ** argv )
 					continue;
 				}
 			}
-			
+
 			else if(sscanf(line,"%7s %101s\n", command, account) == 2){
 				//Create, serve
 				if(strlen(account) == 101){
@@ -226,7 +226,7 @@ main( int argc, char ** argv )
 					continue;
 				}
 			}
-			
+
 			else if(sscanf(line,"%6s\n", command) == 1){
 				//query, end, quit
 				len = strlen(command);
@@ -247,12 +247,12 @@ main( int argc, char ** argv )
 					continue;
 				}
 			}
-			
+
 			else{
 				printf("Invalid input. Please check that there are no kittens prancing on your keyboard before proceeding.\n");
 				continue;
 			}
-			
+
 		}
 		strcpy(command ,"quit");
 		reliablemail(sd,command,5);

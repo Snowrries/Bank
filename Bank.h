@@ -16,13 +16,12 @@
 
 
 
-	typedef struct account{
-		char name[101];
-		float balance;
-		int session;
-//		int created;
-		pthread_mutex_t lock;
-	} account_t;
+typedef struct account{
+	char name[101];
+	float balance;
+	int session;
+	pthread_mutex_t lock;
+} account_t;
 
 
 void printAccounts(account_t *acc);

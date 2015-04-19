@@ -24,25 +24,25 @@
 #define CLIENT_PORT 54261
 
 
-	void organized_cleaning(int signale);
-	
-	void ChildSigHandler(int signale);
-	
-	void child_cleaning(int signale, siginfo_t *ignore, void *ignore2);
+void organized_cleaning(int signale);
 
-	void client_session(int sd);
-	
-	void *periodic_action_cycle_thread( void * ignore );
+void ChildSigHandler(int signale);
 
-	void periodic_printing();
+void child_cleaning(int signale, siginfo_t *ignore, void *ignore2);
 
-	void print_handler(int signale, siginfo_t *ignore, void *ignore2);
+void client_session(int sd);
 
-	int socks();
+void *periodic_action_cycle_thread( void * ignore );
 
-	void sharingcaring();
-	/*??
+void periodic_printing();
+
+void print_handler(int signale, siginfo_t *ignore, void *ignore2);
+
+int socks();
+
+void sharingcaring();
+/*??
 	From BKR's server.c
 	static void set_iaddr(struct sockaddr_in * sockaddr, long x, unsigned int port);
-	*/
+ */
 #endif //Server.h
