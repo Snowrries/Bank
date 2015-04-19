@@ -172,9 +172,9 @@ main( int argc, char ** argv )
 
 			if(sscanf(line,"%9s %f\n",command, &munni)==2){
 				//withdraws and deposits
-				printf("sscanf command: %s, %f\n", command, munni);
+
 				len = strlen(command);
-				printf("sscanf withdraordeposit len: %d", len);
+
 				if(len > 8){
 					printf("Invalid command.\n");
 					continue;
