@@ -353,13 +353,15 @@ void client_session(int sd){
 						perror("send");
 					}
 				}
+				deathflag = 0;
+				/*
 				sem_wait(welcome);
 				readers--;
 				if(readers == 0){//If last reader, unlock write.
 					sem_post(writeo);
 				}
 				sem_post(welcome);
-				break;
+				break;*/
 			}
 			else{
 				if(send(sd, "Unspecified error, eq...", 24 , 0) == -1){
