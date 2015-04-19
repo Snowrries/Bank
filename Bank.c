@@ -26,10 +26,7 @@ int create(account_t *acc,char* name){
 	if(error != 0){
 		return -2;
 	}
-
-
 	strcpy(acc->name, name);
-	printf("End of create function.\n");
 	acc->balance = 0;
 	acc->session = 0;
 	pthread_mutex_unlock(&newAccount);
