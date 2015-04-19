@@ -304,10 +304,11 @@ void client_session(int sd){
 		else if(sscanf(request,"%6s\n", command) == 1){
 			printf("queryendquit %s\n", command);
 			if(insesh == 0){
-				if((strcmp(command,"query")==0)||(strcmp(command,"end")==0))
+				if(strcmp(command,"query")==0){
 				//Send something like 'you must be in a session to use this operation.'
-				if(send(sd,"You must be in a session to use this operation.", 47, 0)==0){
-					perror("send");
+					if(send(sd,"You must be in a session to use this operation.", 47, 0)==0){
+						perror("send");
+					}
 				}
 				continue;
 			}
@@ -323,7 +324,7 @@ void client_session(int sd){
 			
 			if(strcmp(command, "query") == 0){
 				
-				sprintf(request,"%f",act->balance);
+				sprintf(request,"%f",query(acc));
 				if(send(sd, request, strlen(request), 0) == -1){
 					perror("send");
 				}
@@ -332,10 +333,12 @@ void client_session(int sd){
 			else if(strcmp(command, "end") == 0){
 				//Consider error checking this
 				insesh = 0;
+				act.session = 0;
 				pthread_mutex_unlock(&(act->lock));
 				if(send(sd,"Client session ended. You may now create another account, or be served.", 71, 0) == -1){
 					perror("send");
 				}
+				
 			}
 			//quit
 			else if(strcmp(command, "quit") == 0){
@@ -344,7 +347,6 @@ void client_session(int sd){
 					if(send(sd,"Client session ended. Goodbye.", 30 , 0) == -1){
 						perror("send");
 					}
-					
 				}
 				else{
 					if(send(sd,"Goodbye.", 8 , 0) == -1){
