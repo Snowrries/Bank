@@ -260,15 +260,15 @@ void client_session(int sd){
 							nonono = create(&p[i],account);
 							if(nonono == -1){
 								printf("Account is already in use\n");
-									
+
 								if(send(sd, "Account is already in use.\0", 27 , 0) == -1){
 									perror("send");
 								}
-								
+
 							}
 							else if(nonono ==-2 ){
 								printf("Account could not be accessed\n");
-									
+
 								if(send(sd, "Account could not be accessed.\0", 31 , 0) == -1){
 									perror("send");
 								}
@@ -294,7 +294,7 @@ void client_session(int sd){
 								send(sd, "Account is already in use.\0", 27, 0);
 							}
 							else if(nonono == -2){
-								
+
 								send(sd, "Serve error.\0", 13, 0);
 							}
 							insesh = 1;
