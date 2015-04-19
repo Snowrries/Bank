@@ -142,6 +142,7 @@ void client_session(int sd){
 	account_t *act;
 	struct sigaction end;
 	struct sigaction clientend;
+	int nonono;
 	insesh  = 0;
 
 	sem_t *reado;
@@ -173,7 +174,7 @@ void client_session(int sd){
 			perror("recv failed");
 			exit(0);
 		}
-		printf("%s\n",line);
+		printf("Received input from client (%d) : %s\n",(int)getpid(),line);
 			//send new balance, or error if broken
 		if(sscanf(line,"%9s %101s", command, account) == 2){
 			
@@ -187,7 +188,7 @@ void client_session(int sd){
 			}	
 			temp = "strtod error";
 			munni = strtod(account, &temp);
-			printf("word %s, %f \n", command, munni);
+		//	printf("word %s, %f \n", command, munni);
 			sem_wait(reado);
 			sem_wait(welcome);
 			readers++;
@@ -201,16 +202,31 @@ void client_session(int sd){
 			//call the deposit,
 			
 			if(strcmp(command, "deposit") == 0){
-				deposit(act, munni);
-				if(send(sd, "Deposited funds.\0", 17 , 0) == -1){
+				nonono = deposit(act, munni);
+				if(nonono == -1){
+					if(send(sd, "You tried to deposit anti-money. We advise against this. \0", 58, 0) == -1){
+						perror("send");
+					}
+				}
+				else(send(sd, "Deposited funds.\0", 17 , 0) == -1){
 					perror("send");
 				}	
 			}
 			
 			//Withdraw
 			else if(strcmp(command, "withdraw") == 0){
-				withdraw(act, munni);
-				if(send(sd, "Withdrew funds. Thank you for your generous donation.\0", 54 , 0) == -1){
+				nonono = withdraw(act,munni);
+				if(nonono == -1){
+					if(send(sd, "You tried to withdraw anti-money. We advise against this.\0", 58, 0) == -1){
+						perror("send");
+					}
+				}
+				else if(nonono == -2){
+					if(send(sd, "You tried to withdraw more than you have. We advise against this.\0", 66, 0) == -1){
+						perror("send");
+					}
+				}
+				else(send(sd, "Withdrew funds. Thank you for your generous donation.\0", 54 , 0) == -1){
 					perror("send");
 				}	
 			}
@@ -230,7 +246,7 @@ void client_session(int sd){
 		
 		else if((strcmp(command, "create") == 0)||(strcmp(command, "serve") == 0)){
 				
-			printf("servecreate %s, %s\n", command, account);
+		//	printf("servecreate %s, %s\n", command, account);
 			if(insesh == 1){
 				//Send something like 'you're already being served.
 				if(send(sd, "Active customer session: cannot create or serve new account.\0", 61 , 0) == -1){
@@ -240,29 +256,25 @@ void client_session(int sd){
 				//Must end session to creat account'
 				continue;
 			}
-			printf("reado sem\n");
+		//	printf("reado sem\n");
 			sem_wait(reado);
-			printf("writeo sem\n");
+		//	printf("writeo sem\n");
 			sem_wait(writeo);
 			if(strcmp(command, "create") == 0){
 				for(i = 0; i < 20; i++){
 					if((p[i].name)[0] == '\0'){//We need to init all SHM to 0
-						printf("Account Made: %s\n",account);
+						printf("Account Created: %s\n",account);
 						create(&p[i],account);
 						printf("%s\n", p[i].name);
-						//sem_post(writeo);
-						//sem_post(reado);
 						break;
 					}
 					else if(strcmp(p[i].name, account) == 0){
 						//account already exists.
-						//Handle ... somehow.
+						//Handle somehow.
 						//Send error, already exists
 						if(send(sd, "Account name already exists.\0", 29 , 0) == -1){
 							perror("send");
 						}
-						//sem_post(writeo);
-						//sem_post(reado);
 						break;
 					}
 				}
@@ -325,7 +337,7 @@ void client_session(int sd){
 			sem_post(reado);
 			//Send account balance
 			
-			printf("String comparison3: %d\n",strcmp(command, "quit"));
+		//	printf("String comparison3: %d\n",strcmp(command, "quit"));
 			if(strcmp(command, "query") == 0){
 				
 				sprintf(request,"%f",query(act));
@@ -369,7 +381,7 @@ void client_session(int sd){
 				break;*/
 			}
 			else{
-				if(send(sd, "Unspecified error, eq...\0", 25 , 0) == -1){
+				if(send(sd, "Unspecified error...\0", 21 , 0) == -1){
 					perror("send");
 				}	
 			}
