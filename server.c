@@ -310,8 +310,8 @@ void client_session(int sd){
 					if(send(sd,"You must be in a session to use this operation.\0", 48, 0)==0){
 						perror("send");
 					}
-				}
 				continue;
+				}
 			}
 			printf("reado queryendquit\n");
 			sem_wait(reado);
