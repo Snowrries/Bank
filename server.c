@@ -257,7 +257,7 @@ void client_session(int sd){
 					for(i = 0; i < 20; i++){
 						if((p[i].name)[0] == '\0'){//We need to init all SHM to 0
 							printf("Account Created: %s\n",account);
-							nonono = create(&p[i],account)
+							nonono = create(&p[i],account);
 							if(nonono == -1){
 								printf("Account is already in use\n");
 									

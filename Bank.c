@@ -33,7 +33,7 @@ int create(account_t *acc,char* name){
 	acc->balance = 0;
 	acc->session = 0;
 	pthread_mutex_unlock(&newAccount);
-	return *acc;
+	return 0;
 }
 
 struct account *init(){
