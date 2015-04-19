@@ -333,7 +333,7 @@ void client_session(int sd){
 			else if(strcmp(command, "end") == 0){
 				//Consider error checking this
 				insesh = 0;
-				act.session = 0;
+				act->session = 0;
 				pthread_mutex_unlock(&(act->lock));
 				if(send(sd,"Client session ended. You may now create another account, or be served.", 71, 0) == -1){
 					perror("send");
