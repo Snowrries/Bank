@@ -324,7 +324,7 @@ void client_session(int sd){
 			
 			if(strcmp(command, "query") == 0){
 				
-				sprintf(request,"%f",query(acc));
+				sprintf(request,"%f",query(act));
 				if(send(sd, request, strlen(request), 0) == -1){
 					perror("send");
 				}
