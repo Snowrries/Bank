@@ -173,7 +173,6 @@ void client_session(int sd){
 			perror("recv failed");
 			exit(0);
 		}
-		printf("String comparison1: %d",strcmp(command, "quit"));
 		printf("%s\n",line);
 			//send new balance, or error if broken
 		if(sscanf(line,"%9s %101s", command, account) == 2){
@@ -304,7 +303,7 @@ void client_session(int sd){
 		
 		else if(sscanf(line,"%6s", command) == 1){
 			printf("queryendquit %s\n", command);
-			printf("String comparison2: %d",strcmp(command, "quit"));
+			printf("String comparison2: %d\n",strcmp(command, "quit"));
 			if(insesh == 0){
 				if((strcmp(command,"query")==0)||(strcmp(command,"end")==0)){
 				//Send something like 'you must be in a session to use this operation.'
