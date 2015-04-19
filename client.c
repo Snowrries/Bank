@@ -1,18 +1,8 @@
 /*
  * client.c
  */
-#include	<pthread.h>
-#include	<sys/types.h>
-#include	<stdio.h>
-#include	<stdlib.h>
-#include	<unistd.h>
-#include	<errno.h>
-#include	<string.h>
-#include	<sys/socket.h>
-#include	<netdb.h>
-#include	<signal.h>
-#include	<ctype.h>
 
+#include "client.h"
 
 
 sig_atomic_t clientend = 1;
