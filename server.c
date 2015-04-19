@@ -272,6 +272,7 @@ void client_session(int sd){
 				for(i = 0; i < 20; i++){
 					if(((p[i].name)[0] != '\0') && (strcmp(p[i].name, account) == 0)){
 						serve(act = &p[i]);
+						insesh = 1;
 						break;//I hope this exits the loop
 					}
 				}
